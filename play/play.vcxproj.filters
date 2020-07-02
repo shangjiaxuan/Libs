@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\oglplayer\other\main0.cpp" />
+    <ClCompile Include="..\oglplayer\other\main2.cpp" />
+    <ClCompile Include="main1.cpp" />
+    <ClCompile Include="main3.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="main4.cpp" />
+    <ClCompile Include="main5.cpp" />
+    <ClCompile Include="main6.cpp" />
+    <ClCompile Include="main7.cpp" />
+  </ItemGroup>
+</Project>
