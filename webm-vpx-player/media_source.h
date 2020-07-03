@@ -15,7 +15,7 @@ public:
 	virtual int Flush() override final {
 		return E_INVALID_OPERATION;
 	}
-	virtual int GetInputs(const stream_desc*& desc, size_t& num) override final
+	virtual int GetInputs(stream_desc *& desc, size_t& num) override final
 	{
 		num = 0;
 		desc = nullptr;

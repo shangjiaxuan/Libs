@@ -14,7 +14,7 @@ public:
 	{
 		return E_INVALID_OPERATION;
 	}
-	virtual int GetOutputs(const stream_desc*& desc, size_t& num) override final
+	virtual int GetOutputs(stream_desc *& desc, size_t& num) override final
 	{
 		num = 0;
 		desc = nullptr;

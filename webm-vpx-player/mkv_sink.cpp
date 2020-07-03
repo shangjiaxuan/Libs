@@ -208,7 +208,7 @@ public:
 	{
 		if(!writing) 
 			return E_INVALID_OPERATION;
-		mkv_WriteFrame(file, buffer.data1, buffer.start_time, buffer.end_time, buffer.data2, buffer.data, buffer.data3, 0);
+		mkv_WriteFrame(file, buffer.data2, buffer.start_time, buffer.end_time, buffer.data1, buffer.data, buffer.data3, 0);
 		return S_OK;
 	}
 	virtual int AllocBuffer(_buffer_desc& buffer) override final

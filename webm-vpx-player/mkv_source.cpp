@@ -124,6 +124,7 @@ int mkv_source::finish_init()
 		desc_out[i].format_info.meta.mkv.Forced = info->Forced;
 		memcpy(desc_out[i].format_info.meta.mkv.Language,info->Language,4);
 		desc_out[i].format_info.meta.mkv.Name = info->Name;
+		desc_out[i].upstream = this;
 	}
 	istream.progress(&istream, file->pFirstCluster, 0);
 //	file_pos = file->pFirstCluster;
@@ -156,8 +157,8 @@ public:
 		uint32_t track, size;
 		uint64_t start, end;
 		int err = mkv_ReadFrame(file, 0, &track, &start, &end, &file_pos, &size, (void**)&buffer.data, &flags);
-		buffer.data1 = track;
-		buffer.data2 = size;
+		buffer.data2 = track;
+		buffer.data1 = size;
 		buffer.start_time = start;
 		buffer.end_time = end;
 		if (err)

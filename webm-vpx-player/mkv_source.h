@@ -6,8 +6,8 @@ class mkv_source_factory;
 
 #include <matroska/MatroskaParser.h>
 //mkv_source:
-//_buffer_desc.data1: track
-//_buffer_desc.data2: buffer size
+//_buffer_desc.data1: buffer size
+//_buffer_desc.data2: track
 //_buffer_desc.data3: keyframe
 class mkv_source:public media_source {
 protected:
@@ -17,12 +17,11 @@ protected:
 	nodecontext ctx{};
 	MatroskaFile* file = nullptr;
 	int finish_init();
-	stream_desc* desc_out;
-	size_t num_out;
+
 //	uint64_t file_pos;
 public:
 	virtual ~mkv_source();
-	virtual int GetOutputs(const stream_desc*& desc, size_t& num) override final
+	virtual int GetOutputs(stream_desc *& desc, size_t& num) override final
 	{
 		num = num_out;
 		desc = desc_out;

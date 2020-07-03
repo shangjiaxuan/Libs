@@ -164,7 +164,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp">
+    <ClCompile Include="main5.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -194,7 +194,8 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="mian_.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="media_transform.cpp" />
     <ClCompile Include="mkv_sink.cpp" />
     <ClCompile Include="mkv_source.cpp" />
   </ItemGroup>
@@ -202,6 +203,7 @@
     <ClInclude Include="media_buffer.h" />
     <ClInclude Include="media_sink.h" />
     <ClInclude Include="media_source.h" />
+    <ClInclude Include="media_transform.h" />
     <ClInclude Include="mkv_sink.h" />
     <ClInclude Include="mkv_source.h" />
   </ItemGroup>

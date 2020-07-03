@@ -7,8 +7,8 @@
 class mkv_sink_factory;
 
 //mkv_source:
-//_buffer_desc.data1: track
-//_buffer_desc.data2: buffer size
+//_buffer_desc.data1: buffer size
+//_buffer_desc.data2: track
 //_buffer_desc.data3: keyframe
 class mkv_sink:	public media_sink {
 protected:
@@ -23,15 +23,15 @@ protected:
 	int write_headers();
 	int finish_init();
 	//	uint64_t file_pos;
-	stream_desc* in_tracks;
+	stream_desc* desc_in;
 	size_t num_in;
 public:
 	virtual ~mkv_sink();
 	//	virtual int FetchBuffer(_buffer_desc& buffer) override final;
 protected:
-	virtual int GetInputs(const stream_desc*& desc, size_t& num) override final
+	virtual int GetInputs(stream_desc *& desc, size_t& num) override final
 	{
-		desc = in_tracks;
+		desc = desc_in;
 		num = num_in;
 		return S_OK;
 	}

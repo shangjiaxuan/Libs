@@ -217,18 +217,24 @@ public:
 		//Sanity check for invalid topology building
 		E_PROTOCOL_MISMATCH
 	};
-private:
+protected:
+	//only allocate this if final overrirde
+	stream_desc* desc_out= nullptr;
+	size_t num_out = 0;
+	//only allocate this if final overrirde
+	stream_desc* desc_in = nullptr;
+	size_t num_in = 0;
 	//Topology building finished
 	bool running = false;
 public:
-	media_buffer_node() {};
+	media_buffer_node(){};
 	virtual int FetchBuffer(_buffer_desc& buffer) = 0;
 	virtual int QueueBuffer(_buffer_desc& buffer) = 0;
 	virtual int ReleaseBuffer(_buffer_desc& buffer) = 0;
 	virtual int AllocBuffer(_buffer_desc& buffer) = 0;
 	virtual int Flush() = 0;
-	virtual int GetInputs(const stream_desc*& desc, size_t& num) = 0;
-	virtual int GetOutputs(const stream_desc*& desc, size_t& num) = 0;
+	virtual int GetInputs(stream_desc *& desc, size_t& num) = 0;
+	virtual int GetOutputs(stream_desc *& desc, size_t& num) = 0;
 	//for building topology
 //	virtual int AddUpstream() = 0;
 //	virtual int AddDownstream() = 0;
