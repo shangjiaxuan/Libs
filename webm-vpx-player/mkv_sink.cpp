@@ -123,6 +123,18 @@ int mkv_sink::AddTrack(const stream_desc& info)
 				default:
 					return E_UNIMPLEMENTED;
 			}
+			switch (info.detail.audio.layout) {
+				case stream_desc::audio_info::CH_LAYOUT_MONO:
+					track.AV.Audio.Channels = 1;
+					break;
+				case stream_desc::audio_info::CH_LAYOUT_STEREO:
+				case stream_desc::audio_info::CH_LAYOUT_STEREO_DOWNMIX:
+					track.AV.Audio.Channels = 2;
+					break;
+				default:
+					return E_UNIMPLEMENTED;
+					break;
+			}
 			break;
 		case stream_desc::MTYPE_LAST:
 			break;
@@ -208,6 +220,7 @@ public:
 		if(!writing)
 			return E_INVALID_OPERATION;
 		mkv_WriteTail(file);
+		fflush(mfile_handle);
 		writing = false;
 		return S_OK;
 	}

@@ -30,6 +30,7 @@ int mkv_source::finish_init()
 	for (size_t i = 0; i < num_out; ++i) {
 		TrackInfo* info = mkv_GetTrackInfo(file,i);
 		if (info->Type == TRACK_TYPE_VIDEO) {
+			desc_out[i].type = stream_desc::MTYPE_VIDEO;
 			stream_desc::video_info oinfo{};
 			oinfo.width = info->AV.Video.PixelWidth;
 			oinfo.height = info->AV.Video.PixelHeight;
@@ -77,16 +78,12 @@ int mkv_source::finish_init()
 				oinfo.codec = stream_desc::video_info::VCODEC_VP9;
 				//decoder creation is defered to topology building
 				//decoders[i] = new libvpx_vp9_decoder(sinfo, oinfo, 4);
-				desc_out[i].type = stream_desc::MTYPE_VIDEO;
 				desc_out[i].detail = std::move(stream_desc::detailed_info(oinfo));
 			}
 		}
 		if (info->Type == TRACK_TYPE_AUDIO) {
+			desc_out[i].type = stream_desc::MTYPE_AUDIO;
 			stream_desc::audio_info oinfo;
-			oinfo.codec = stream_desc::audio_info::ACODEC_PCM;
-			oinfo.Hz = 48000;
-			oinfo.matrix = stream_desc::audio_info::MATRIX_ENCODING_NONE;
-			oinfo.planar = true;
 			if (info->AV.Audio.SamplingFreq) {
 				oinfo.Hz = info->AV.Audio.SamplingFreq;
 			}
@@ -114,7 +111,6 @@ int mkv_source::finish_init()
 				oinfo.codec = stream_desc::audio_info::ACODEC_OPUS;
 				//decoder creation is defered to topology building
 				//decoders[i] = new libopus_opus_decoder(sinfo, sinfo);
-				desc_out[i].type = stream_desc::MTYPE_VIDEO;
 				desc_out[i].detail = std::move(stream_desc::detailed_info(oinfo));
 			}
 		}

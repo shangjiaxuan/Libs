@@ -20,7 +20,7 @@ typedef struct TrackInfo {
 	uint8_t* CodecPrivate;
 	size_t CodecPrivateSize;
 	timecode_t DefaultDuration;
-	char* CodecID;
+	const char* CodecID;
 	char* Name;
 	char Language[4];
 
