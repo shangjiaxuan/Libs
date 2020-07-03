@@ -169,6 +169,7 @@ public:
 			buffer.data3 = 0;
 		buffer.release = release_frame;
 		buffer.ptr = &istream;
+		buffer.stream=&desc_out[track];
 		return 0;
 	}
 	virtual int ReleaseBuffer(_buffer_desc& buffer) override final
@@ -189,7 +190,8 @@ public:
 private:
 	static void release_frame(_buffer_desc* buffer, void* stream)
 	{
-		((InputStream*)stream)->releaseref((InputStream*)stream, buffer->data);
+		mkv_file_source* __this = (mkv_file_source*)stream;
+		__this->istream.releaseref(&__this->istream,buffer->data);
 		buffer->data = nullptr;
 	}
 protected:

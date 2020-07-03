@@ -1,22 +1,79 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="main1.cpp" />
-    <ClCompile Include="main0.cpp" />
-    <ClCompile Include="main2.cpp" />
-    <ClCompile Include="main3.cpp" />
-    <ClCompile Include="mkv_source.cpp" />
-    <ClCompile Include="mkv_sink.cpp" />
-    <ClCompile Include="media_transform.cpp" />
-    <ClCompile Include="main5.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="main0.cpp">
+      <Filter>playground</Filter>
+    </ClCompile>
+    <ClCompile Include="main1.cpp">
+      <Filter>playground</Filter>
+    </ClCompile>
+    <ClCompile Include="main2.cpp">
+      <Filter>playground</Filter>
+    </ClCompile>
+    <ClCompile Include="main3.cpp">
+      <Filter>playground</Filter>
+    </ClCompile>
+    <ClCompile Include="main5.cpp">
+      <Filter>playground</Filter>
+    </ClCompile>
+    <ClCompile Include="mkv_sink.cpp">
+      <Filter>media_node\media_sink</Filter>
+    </ClCompile>
+    <ClCompile Include="mkv_source.cpp">
+      <Filter>media_node\media_source</Filter>
+    </ClCompile>
+    <ClCompile Include="vp9_glTex_decoder.cpp">
+      <Filter>media_node\media_transform\video</Filter>
+    </ClCompile>
+    <ClCompile Include="vp9_ram_vpximg_decoder.cpp">
+      <Filter>media_node\media_transform\video</Filter>
+    </ClCompile>
+    <ClCompile Include="opus_decoder.cpp">
+      <Filter>media_node\media_transform\audio</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="media_buffer.h" />
-    <ClInclude Include="media_source.h" />
-    <ClInclude Include="mkv_source.h" />
-    <ClInclude Include="media_sink.h" />
-    <ClInclude Include="mkv_sink.h" />
-    <ClInclude Include="media_transform.h" />
+    <ClInclude Include="mkv_sink.h">
+      <Filter>media_node\media_sink</Filter>
+    </ClInclude>
+    <ClInclude Include="mkv_source.h">
+      <Filter>media_node\media_source</Filter>
+    </ClInclude>
+    <ClInclude Include="media_buffer.h">
+      <Filter>media_node</Filter>
+    </ClInclude>
+    <ClInclude Include="media_sink.h">
+      <Filter>media_node\media_sink</Filter>
+    </ClInclude>
+    <ClInclude Include="media_source.h">
+      <Filter>media_node\media_source</Filter>
+    </ClInclude>
+    <ClInclude Include="media_transform.h">
+      <Filter>media_node\media_transform</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="playground">
+      <UniqueIdentifier>{685514a9-5864-4cd9-abf4-e97cd85fb07e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="media_node">
+      <UniqueIdentifier>{9cc1ec11-22a8-4cff-b0f1-53dc7ee20f35}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="media_node\media_sink">
+      <UniqueIdentifier>{057d0668-ca75-43d5-941b-695b926d1065}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="media_node\media_source">
+      <UniqueIdentifier>{037d79f9-3c44-4106-87fa-90d7890a677e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="media_node\media_transform">
+      <UniqueIdentifier>{be5db41d-889a-4055-bd1c-a3f8e3715389}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="media_node\media_transform\video">
+      <UniqueIdentifier>{f1eb3dfa-e016-4acf-957f-2f19a879fb82}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="media_node\media_transform\audio">
+      <UniqueIdentifier>{ed6cd076-02b3-4870-8f87-ea52e529da47}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
 </Project>

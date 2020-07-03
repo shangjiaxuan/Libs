@@ -146,8 +146,8 @@ struct stream_desc {
 		}
 		detailed_info() {}
 	} detail{};
-	const media_buffer_node* upstream{};
-	const media_buffer_node* downstream{};
+	media_buffer_node* upstream{};
+	media_buffer_node* downstream{};
 	struct format_detail {
 		uint8_t* CodecPrivate;
 		size_t CodecPrivateSize;
@@ -170,7 +170,7 @@ struct _buffer_desc {
 	//the flag for protocol (input)
 	const uint32_t type;
 	//the stream the buffer is in
-	const stream_desc* stream;
+	stream_desc* stream;
 	//the pointer to memory or struct
 	//that holds the actual data.
 	void* data;
