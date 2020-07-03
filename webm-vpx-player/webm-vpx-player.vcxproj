@@ -164,6 +164,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="libsoundio_sink.cpp" />
+    <ClCompile Include="media_buffer.cpp" />
     <ClCompile Include="opus_decoder.cpp" />
     <ClCompile Include="vp9_glTex_decoder.cpp" />
     <ClCompile Include="main5.cpp">
@@ -202,6 +204,7 @@
     <ClCompile Include="mkv_source.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="audio_output_sink.h" />
     <ClInclude Include="media_buffer.h" />
     <ClInclude Include="media_sink.h" />
     <ClInclude Include="media_source.h" />

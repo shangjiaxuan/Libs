@@ -92,20 +92,20 @@ int mkv_source::finish_init()
 			}
 			switch (info->AV.Audio.Channels) {
 				case 0:
-					oinfo.layout = stream_desc::audio_info::CH_LAYOUT_MONO;
+					oinfo.layout = *stream_desc::audio_info::GetBuiltinLayoutFromType(stream_desc::audio_info::CH_LAYOUT_STEREO);
 					break;
 				case 1:
-					oinfo.layout = stream_desc::audio_info::CH_LAYOUT_MONO;
+					oinfo.layout = *stream_desc::audio_info::GetBuiltinLayoutFromType(stream_desc::audio_info::CH_LAYOUT_MONO);
 					break;
 				case 2:
-					oinfo.layout = stream_desc::audio_info::CH_LAYOUT_STEREO;
+					oinfo.layout = *stream_desc::audio_info::GetBuiltinLayoutFromType(stream_desc::audio_info::CH_LAYOUT_STEREO);
 					break;
 				default:
-					oinfo.layout = stream_desc::audio_info::CH_LAYOUT_STEREO;
+					oinfo.layout = *stream_desc::audio_info::GetBuiltinLayoutFromType(stream_desc::audio_info::CH_LAYOUT_STEREO);
 			}
 			if (strcmp(info->CodecID, "A_OPUS") == 0) {
 				oinfo.Hz = 48000;
-				oinfo.layout = stream_desc::audio_info::CH_LAYOUT_STEREO;
+				oinfo.layout = *stream_desc::audio_info::GetBuiltinLayoutFromType(stream_desc::audio_info::CH_LAYOUT_STEREO);
 				oinfo.matrix = stream_desc::audio_info::MATRIX_ENCODING_NONE;
 				oinfo.planar = false;
 				oinfo.codec = stream_desc::audio_info::ACODEC_OPUS;

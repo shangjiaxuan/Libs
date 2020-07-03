@@ -32,7 +32,7 @@ public:
 		out_stream.detail.audio.format.isfloat = 1;
 		out_stream.detail.audio.format.isBE = 0;
 		out_stream.detail.audio.format.isunsigned = 0;
-		out_stream.detail.audio.format.bitdepth_minus_one = 31;
+		out_stream.detail.audio.format.bitdepth = 32;
 		desc_in = upstream;
 		desc_out = &out_stream;
 	}

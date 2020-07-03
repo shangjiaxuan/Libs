@@ -32,6 +32,10 @@
     <ClCompile Include="opus_decoder.cpp">
       <Filter>media_node\media_transform\audio</Filter>
     </ClCompile>
+    <ClCompile Include="libsoundio_sink.cpp">
+      <Filter>media_node\media_sink</Filter>
+    </ClCompile>
+    <ClCompile Include="media_buffer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="mkv_sink.h">
@@ -51,6 +55,9 @@
     </ClInclude>
     <ClInclude Include="media_transform.h">
       <Filter>media_node\media_transform</Filter>
+    </ClInclude>
+    <ClInclude Include="audio_output_sink.h">
+      <Filter>media_node\media_sink</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
