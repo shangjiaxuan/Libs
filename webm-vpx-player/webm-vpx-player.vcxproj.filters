@@ -1,7 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="main.cpp" />
     <ClCompile Include="main0.cpp">
       <Filter>playground</Filter>
     </ClCompile>
@@ -36,6 +35,34 @@
       <Filter>media_node\media_sink</Filter>
     </ClCompile>
     <ClCompile Include="media_buffer.cpp" />
+    <ClCompile Include="soundio_service.cpp">
+      <Filter>service\audio_service</Filter>
+    </ClCompile>
+    <ClCompile Include="main6.cpp">
+      <Filter>playground</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="..\oglplayer\libsoundio\src\channel_layout.c">
+      <Filter>libsoundio</Filter>
+    </ClCompile>
+    <ClCompile Include="..\oglplayer\libsoundio\src\dummy.c">
+      <Filter>libsoundio</Filter>
+    </ClCompile>
+    <ClCompile Include="..\oglplayer\libsoundio\src\os.c">
+      <Filter>libsoundio</Filter>
+    </ClCompile>
+    <ClCompile Include="..\oglplayer\libsoundio\src\soundio.c">
+      <Filter>libsoundio</Filter>
+    </ClCompile>
+    <ClCompile Include="..\oglplayer\libsoundio\src\util.c">
+      <Filter>libsoundio</Filter>
+    </ClCompile>
+    <ClCompile Include="..\oglplayer\libsoundio\src\wasapi.c">
+      <Filter>libsoundio</Filter>
+    </ClCompile>
+    <ClCompile Include="..\oglplayer\libsoundio\src\ring_buffer.c">
+      <Filter>libsoundio</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="mkv_sink.h">
@@ -59,6 +86,21 @@
     <ClInclude Include="audio_output_sink.h">
       <Filter>media_node\media_sink</Filter>
     </ClInclude>
+    <ClInclude Include="audio_serice.h">
+      <Filter>service\audio_service</Filter>
+    </ClInclude>
+    <ClInclude Include="audio_info.h">
+      <Filter>service\audio_service</Filter>
+    </ClInclude>
+    <ClInclude Include="soundio_service.h">
+      <Filter>service\audio_service</Filter>
+    </ClInclude>
+    <ClInclude Include="soundio_service.ipp">
+      <Filter>service\audio_service</Filter>
+    </ClInclude>
+    <ClInclude Include="soundio_outstream.h">
+      <Filter>service\audio_service</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="playground">
@@ -81,6 +123,15 @@
     </Filter>
     <Filter Include="media_node\media_transform\audio">
       <UniqueIdentifier>{ed6cd076-02b3-4870-8f87-ea52e529da47}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="service">
+      <UniqueIdentifier>{7bcb8f01-9321-438f-8660-ff4fd9bea050}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="service\audio_service">
+      <UniqueIdentifier>{e0f2de11-2294-4677-80b7-8c41d516088f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libsoundio">
+      <UniqueIdentifier>{47e848c2-e933-49eb-9704-886d8b57c47e}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

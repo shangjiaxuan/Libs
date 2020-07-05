@@ -1,6 +1,6 @@
 #pragma once
 
-#include <cstdint>
+#include "audio_info.h"
 
 class media_buffer_node;
 
@@ -12,7 +12,7 @@ struct stream_desc {
 		MTYPE_AUDIO,
 		MTYPE_LAST
 	};
-	major_type type{};
+	major_type type{MTYPE_NONE};
 	struct video_info {
 		enum color_space {
 			CS_UNKNOWN = 0,   /**< Unknown */
@@ -48,34 +48,6 @@ struct stream_desc {
 		unsigned width, height;
 	};
 	struct audio_info {
-		enum channel_id : uint8_t {
-			CH_NONE,
-			CH_FRONT_LEFT,
-			CH_FRONT_RIGHT,
-			CH_FRONT_CENTER,
-			CH_FRONT_LEFT_OF_CENTER,
-			CH_FRONT_RIGHT_OF_CENTER,
-			CH_BACK_LEFT,
-			CH_BACK_RIGHT,
-			CH_BACK_CENTER,
-			CH_SIDE_LEFT,
-			CH_SIDE_RIGHT,
-			CH_LOW_FREQUENCY,
-			CH_TOP_CENTER,
-			CH_TOP_FRONT_LEFT,
-			CH_TOP_FRONT_RIGHT,
-			CH_TOP_FRONT_CENTER,
-			CH_TOP_BACK_LEFT,
-			CH_TOP_BACK_RIGHT,
-			CH_TOP_BACK_CENTER,
-			CH_WIDE_LEFT,
-			CH_WIDE_RIGHT,
-			CH_LOW_FREQUENCY_2,
-			//stereo downmix
-			CH_STEREO_LEFT,
-			//stereo downmix
-			CH_STEREO_RIGHT,
-		};
 		enum channel_layout_type {
 			CH_LAYOUT_NONE,
 			CH_LAYOUT_MONO,
@@ -107,12 +79,6 @@ struct stream_desc {
 			CH_LAYOUT_HEXADECAGONAL,
 			CH_LAYOUT_STEREO_DOWNMIX
 		};
-		static constexpr int max_channels = 24;
-		struct channel_layout {
-			const char* name;
-			int channel_count;
-			enum channel_id channels[max_channels];
-		};
 		enum audio_codec {
 			ACODEC_NONE,
 			ACODEC_NOTSUPPORTED,
@@ -132,15 +98,10 @@ struct stream_desc {
 			MATRIX_ENCODING_DOLBYHEADPHONE,
 			MATRIX_ENCODING_NB
 		} matrix;
+		SampleFormat format;
 		channel_layout layout;
 		double Hz;
 		bool planar;
-		struct SampleFormat {
-			int8_t bitdepth;
-			int8_t isfloat : 1;
-			int8_t isunsigned :1;
-			int8_t isBE :1;
-		} format;
 		static const channel_layout* GetDefaultLayoutFromCount(int ch_count);
 		static const channel_layout* GetBuiltinLayoutFromType(channel_layout_type type);
 		static const char* GetChannelName(channel_id id);
@@ -171,9 +132,9 @@ struct stream_desc {
 				bool Default;
 				bool Forced;
 				char Language[4];
-				char* Name;
 			} mkv;
 		}meta;
+		char* Name;
 	}format_info{};
 };
 

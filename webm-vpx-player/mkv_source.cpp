@@ -123,7 +123,7 @@ int mkv_source::finish_init()
 		desc_out[i].format_info.meta.mkv.Enabled = info->Enabled;
 		desc_out[i].format_info.meta.mkv.Forced = info->Forced;
 		memcpy(desc_out[i].format_info.meta.mkv.Language,info->Language,4);
-		desc_out[i].format_info.meta.mkv.Name = info->Name;
+		desc_out[i].format_info.Name = info->Name;
 		desc_out[i].upstream = this;
 	}
 	istream.progress(&istream, file->pFirstCluster, 0);

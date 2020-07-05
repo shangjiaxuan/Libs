@@ -1,220 +1,220 @@
 #include "media_buffer.h"
 
-static struct stream_desc::audio_info::channel_layout builtin_channel_layouts[] = {
+static struct channel_layout builtin_channel_layouts[] = {
 	{ "None", 0, {}},
 	{ "Mono", 1, {
-		stream_desc::audio_info::CH_FRONT_CENTER,
+		CH_FRONT_CENTER,
 	}},
 	{ "Stereo", 2, {
-		stream_desc::audio_info::CH_FRONT_LEFT,
-		stream_desc::audio_info::CH_FRONT_RIGHT,
+		CH_FRONT_LEFT,
+		CH_FRONT_RIGHT,
 	}},
 	{ "2.1", 3, {
-		stream_desc::audio_info::CH_FRONT_LEFT,
-		stream_desc::audio_info::CH_FRONT_RIGHT,
-		stream_desc::audio_info::CH_LOW_FREQUENCY,
+		CH_FRONT_LEFT,
+		CH_FRONT_RIGHT,
+		CH_LOW_FREQUENCY,
 	}},
 	{ "2_1 (3.0 (back))", 3, {
-		stream_desc::audio_info::CH_FRONT_LEFT,
-		stream_desc::audio_info::CH_FRONT_RIGHT,
-		stream_desc::audio_info::CH_BACK_CENTER
+		CH_FRONT_LEFT,
+		CH_FRONT_RIGHT,
+		CH_BACK_CENTER
 	}},
 	{ "Surround (3.0)", 3, {
-		stream_desc::audio_info::CH_FRONT_LEFT,
-		stream_desc::audio_info::CH_FRONT_RIGHT,
-		stream_desc::audio_info::CH_FRONT_CENTER
+		CH_FRONT_LEFT,
+		CH_FRONT_RIGHT,
+		CH_FRONT_CENTER
 	}},
 	{ "3.1", 4, {
-		stream_desc::audio_info::CH_FRONT_LEFT,
-		stream_desc::audio_info::CH_FRONT_RIGHT,
-		stream_desc::audio_info::CH_FRONT_CENTER,
-		stream_desc::audio_info::CH_LOW_FREQUENCY
+		CH_FRONT_LEFT,
+		CH_FRONT_RIGHT,
+		CH_FRONT_CENTER,
+		CH_LOW_FREQUENCY
 	}},
 	{ "4.0", 4, {
-		stream_desc::audio_info::CH_FRONT_LEFT,
-		stream_desc::audio_info::CH_FRONT_RIGHT,
-		stream_desc::audio_info::CH_FRONT_CENTER,
-		stream_desc::audio_info::CH_BACK_CENTER
+		CH_FRONT_LEFT,
+		CH_FRONT_RIGHT,
+		CH_FRONT_CENTER,
+		CH_BACK_CENTER
 	}},
 	{ "4.1", 5, {
-		stream_desc::audio_info::CH_FRONT_LEFT,
-		stream_desc::audio_info::CH_FRONT_RIGHT,
-		stream_desc::audio_info::CH_FRONT_CENTER,
-		stream_desc::audio_info::CH_BACK_CENTER,
-		stream_desc::audio_info::CH_LOW_FREQUENCY
+		CH_FRONT_LEFT,
+		CH_FRONT_RIGHT,
+		CH_FRONT_CENTER,
+		CH_BACK_CENTER,
+		CH_LOW_FREQUENCY
 	}},
 	{ "2_2 (Quad (side))", 4, {
-		stream_desc::audio_info::CH_FRONT_LEFT,
-		stream_desc::audio_info::CH_FRONT_RIGHT,
-		stream_desc::audio_info::CH_SIDE_LEFT,
-		stream_desc::audio_info::CH_SIDE_RIGHT
+		CH_FRONT_LEFT,
+		CH_FRONT_RIGHT,
+		CH_SIDE_LEFT,
+		CH_SIDE_RIGHT
 	}},
 	{ "Quad", 4, {
-		stream_desc::audio_info::CH_FRONT_LEFT,
-		stream_desc::audio_info::CH_FRONT_RIGHT,
-		stream_desc::audio_info::CH_BACK_LEFT,
-		stream_desc::audio_info::CH_BACK_RIGHT
+		CH_FRONT_LEFT,
+		CH_FRONT_RIGHT,
+		CH_BACK_LEFT,
+		CH_BACK_RIGHT
 	}},
 	{ "5.0", 5, {
-		stream_desc::audio_info::CH_FRONT_LEFT,
-		stream_desc::audio_info::CH_FRONT_RIGHT,
-		stream_desc::audio_info::CH_FRONT_CENTER,
-		stream_desc::audio_info::CH_SIDE_LEFT,
-		stream_desc::audio_info::CH_SIDE_RIGHT
+		CH_FRONT_LEFT,
+		CH_FRONT_RIGHT,
+		CH_FRONT_CENTER,
+		CH_SIDE_LEFT,
+		CH_SIDE_RIGHT
 	}},
 	{ "5.1", 6, {
-		stream_desc::audio_info::CH_FRONT_LEFT,
-		stream_desc::audio_info::CH_FRONT_RIGHT,
-		stream_desc::audio_info::CH_FRONT_CENTER,
-		stream_desc::audio_info::CH_SIDE_LEFT,
-		stream_desc::audio_info::CH_SIDE_RIGHT,
-		stream_desc::audio_info::CH_LOW_FREQUENCY
+		CH_FRONT_LEFT,
+		CH_FRONT_RIGHT,
+		CH_FRONT_CENTER,
+		CH_SIDE_LEFT,
+		CH_SIDE_RIGHT,
+		CH_LOW_FREQUENCY
 	}},
 	{ "5.0 (back)", 5, {
-		stream_desc::audio_info::CH_FRONT_LEFT,
-		stream_desc::audio_info::CH_FRONT_RIGHT,
-		stream_desc::audio_info::CH_FRONT_CENTER,
-		stream_desc::audio_info::CH_BACK_LEFT,
-		stream_desc::audio_info::CH_BACK_RIGHT
+		CH_FRONT_LEFT,
+		CH_FRONT_RIGHT,
+		CH_FRONT_CENTER,
+		CH_BACK_LEFT,
+		CH_BACK_RIGHT
 	}},
 	{ "5.1 (back)", 6, {
-		stream_desc::audio_info::CH_FRONT_LEFT,
-		stream_desc::audio_info::CH_FRONT_RIGHT,
-		stream_desc::audio_info::CH_FRONT_CENTER,
-		stream_desc::audio_info::CH_BACK_LEFT,
-		stream_desc::audio_info::CH_BACK_RIGHT,
-		stream_desc::audio_info::CH_LOW_FREQUENCY
+		CH_FRONT_LEFT,
+		CH_FRONT_RIGHT,
+		CH_FRONT_CENTER,
+		CH_BACK_LEFT,
+		CH_BACK_RIGHT,
+		CH_LOW_FREQUENCY
 	}},
 	{ "6.0", 6, {
-		stream_desc::audio_info::CH_FRONT_LEFT,
-		stream_desc::audio_info::CH_FRONT_RIGHT,
-		stream_desc::audio_info::CH_FRONT_CENTER,
-		stream_desc::audio_info::CH_SIDE_LEFT,
-		stream_desc::audio_info::CH_SIDE_RIGHT,
-		stream_desc::audio_info::CH_BACK_CENTER,
+		CH_FRONT_LEFT,
+		CH_FRONT_RIGHT,
+		CH_FRONT_CENTER,
+		CH_SIDE_LEFT,
+		CH_SIDE_RIGHT,
+		CH_BACK_CENTER,
 	}},
 	{ "6.0 (front)", 6, {
-		stream_desc::audio_info::CH_FRONT_LEFT,
-		stream_desc::audio_info::CH_FRONT_RIGHT,
-		stream_desc::audio_info::CH_SIDE_LEFT,
-		stream_desc::audio_info::CH_SIDE_RIGHT,
-		stream_desc::audio_info::CH_FRONT_LEFT_OF_CENTER,
-		stream_desc::audio_info::CH_FRONT_RIGHT_OF_CENTER
+		CH_FRONT_LEFT,
+		CH_FRONT_RIGHT,
+		CH_SIDE_LEFT,
+		CH_SIDE_RIGHT,
+		CH_FRONT_LEFT_OF_CENTER,
+		CH_FRONT_RIGHT_OF_CENTER
 	}},
 	{ "Hexagonal", 6, {
-		stream_desc::audio_info::CH_FRONT_LEFT,
-		stream_desc::audio_info::CH_FRONT_RIGHT,
-		stream_desc::audio_info::CH_FRONT_CENTER,
-		stream_desc::audio_info::CH_BACK_LEFT,
-		stream_desc::audio_info::CH_BACK_RIGHT,
-		stream_desc::audio_info::CH_BACK_CENTER,
+		CH_FRONT_LEFT,
+		CH_FRONT_RIGHT,
+		CH_FRONT_CENTER,
+		CH_BACK_LEFT,
+		CH_BACK_RIGHT,
+		CH_BACK_CENTER,
 	}},
 	{ "6.1", 7, {
-		stream_desc::audio_info::CH_FRONT_LEFT,
-		stream_desc::audio_info::CH_FRONT_RIGHT,
-		stream_desc::audio_info::CH_FRONT_CENTER,
-		stream_desc::audio_info::CH_SIDE_LEFT,
-		stream_desc::audio_info::CH_SIDE_RIGHT,
-		stream_desc::audio_info::CH_BACK_CENTER,
-		stream_desc::audio_info::CH_LOW_FREQUENCY
+		CH_FRONT_LEFT,
+		CH_FRONT_RIGHT,
+		CH_FRONT_CENTER,
+		CH_SIDE_LEFT,
+		CH_SIDE_RIGHT,
+		CH_BACK_CENTER,
+		CH_LOW_FREQUENCY
 	}},
 	{ "6.1 (back)", 7, {
-		stream_desc::audio_info::CH_FRONT_LEFT,
-		stream_desc::audio_info::CH_FRONT_RIGHT,
-		stream_desc::audio_info::CH_FRONT_CENTER,
-		stream_desc::audio_info::CH_BACK_LEFT,
-		stream_desc::audio_info::CH_BACK_RIGHT,
-		stream_desc::audio_info::CH_BACK_CENTER,
-		stream_desc::audio_info::CH_LOW_FREQUENCY
+		CH_FRONT_LEFT,
+		CH_FRONT_RIGHT,
+		CH_FRONT_CENTER,
+		CH_BACK_LEFT,
+		CH_BACK_RIGHT,
+		CH_BACK_CENTER,
+		CH_LOW_FREQUENCY
 	}},
 	{ "6.1 (front)", 7, {
-		stream_desc::audio_info::CH_FRONT_LEFT,
-		stream_desc::audio_info::CH_FRONT_RIGHT,
-		stream_desc::audio_info::CH_SIDE_LEFT,
-		stream_desc::audio_info::CH_SIDE_RIGHT,
-		stream_desc::audio_info::CH_FRONT_LEFT_OF_CENTER,
-		stream_desc::audio_info::CH_FRONT_RIGHT_OF_CENTER,
-		stream_desc::audio_info::CH_LOW_FREQUENCY
+		CH_FRONT_LEFT,
+		CH_FRONT_RIGHT,
+		CH_SIDE_LEFT,
+		CH_SIDE_RIGHT,
+		CH_FRONT_LEFT_OF_CENTER,
+		CH_FRONT_RIGHT_OF_CENTER,
+		CH_LOW_FREQUENCY
 	}},
 	{ "7.0", 7, {
-		stream_desc::audio_info::CH_FRONT_LEFT,
-		stream_desc::audio_info::CH_FRONT_RIGHT,
-		stream_desc::audio_info::CH_FRONT_CENTER,
-		stream_desc::audio_info::CH_SIDE_LEFT,
-		stream_desc::audio_info::CH_SIDE_RIGHT,
-		stream_desc::audio_info::CH_BACK_RIGHT,
-		stream_desc::audio_info::CH_BACK_CENTER,
+		CH_FRONT_LEFT,
+		CH_FRONT_RIGHT,
+		CH_FRONT_CENTER,
+		CH_SIDE_LEFT,
+		CH_SIDE_RIGHT,
+		CH_BACK_RIGHT,
+		CH_BACK_CENTER,
 	}},
 	{ "7.0 (front)", 7, {
-		stream_desc::audio_info::CH_FRONT_LEFT,
-		stream_desc::audio_info::CH_FRONT_RIGHT,
-		stream_desc::audio_info::CH_FRONT_CENTER,
-		stream_desc::audio_info::CH_SIDE_LEFT,
-		stream_desc::audio_info::CH_SIDE_RIGHT,
-		stream_desc::audio_info::CH_FRONT_LEFT_OF_CENTER,
-		stream_desc::audio_info::CH_FRONT_RIGHT_OF_CENTER,
+		CH_FRONT_LEFT,
+		CH_FRONT_RIGHT,
+		CH_FRONT_CENTER,
+		CH_SIDE_LEFT,
+		CH_SIDE_RIGHT,
+		CH_FRONT_LEFT_OF_CENTER,
+		CH_FRONT_RIGHT_OF_CENTER,
 	}},
 	{ "7.1", 8, {
-		stream_desc::audio_info::CH_FRONT_LEFT,
-		stream_desc::audio_info::CH_FRONT_RIGHT,
-		stream_desc::audio_info::CH_FRONT_CENTER,
-		stream_desc::audio_info::CH_SIDE_LEFT,
-		stream_desc::audio_info::CH_SIDE_RIGHT,
-		stream_desc::audio_info::CH_BACK_LEFT,
-		stream_desc::audio_info::CH_BACK_RIGHT,
-		stream_desc::audio_info::CH_LOW_FREQUENCY
+		CH_FRONT_LEFT,
+		CH_FRONT_RIGHT,
+		CH_FRONT_CENTER,
+		CH_SIDE_LEFT,
+		CH_SIDE_RIGHT,
+		CH_BACK_LEFT,
+		CH_BACK_RIGHT,
+		CH_LOW_FREQUENCY
 	}},
 	{ "7.1 (wide)", 8, {
-		stream_desc::audio_info::CH_FRONT_LEFT,
-		stream_desc::audio_info::CH_FRONT_RIGHT,
-		stream_desc::audio_info::CH_FRONT_CENTER,
-		stream_desc::audio_info::CH_SIDE_LEFT,
-		stream_desc::audio_info::CH_SIDE_RIGHT,
-		stream_desc::audio_info::CH_FRONT_LEFT_OF_CENTER,
-		stream_desc::audio_info::CH_FRONT_RIGHT_OF_CENTER,
-		stream_desc::audio_info::CH_LOW_FREQUENCY
+		CH_FRONT_LEFT,
+		CH_FRONT_RIGHT,
+		CH_FRONT_CENTER,
+		CH_SIDE_LEFT,
+		CH_SIDE_RIGHT,
+		CH_FRONT_LEFT_OF_CENTER,
+		CH_FRONT_RIGHT_OF_CENTER,
+		CH_LOW_FREQUENCY
 	}},
 	{ "7.1 (wide) (back)", 8, {
-		stream_desc::audio_info::CH_FRONT_LEFT,
-		stream_desc::audio_info::CH_FRONT_RIGHT,
-		stream_desc::audio_info::CH_FRONT_CENTER,
-		stream_desc::audio_info::CH_BACK_LEFT,
-		stream_desc::audio_info::CH_BACK_RIGHT,
-		stream_desc::audio_info::CH_FRONT_LEFT_OF_CENTER,
-		stream_desc::audio_info::CH_FRONT_RIGHT_OF_CENTER,
-		stream_desc::audio_info::CH_LOW_FREQUENCY
+		CH_FRONT_LEFT,
+		CH_FRONT_RIGHT,
+		CH_FRONT_CENTER,
+		CH_BACK_LEFT,
+		CH_BACK_RIGHT,
+		CH_FRONT_LEFT_OF_CENTER,
+		CH_FRONT_RIGHT_OF_CENTER,
+		CH_LOW_FREQUENCY
 	}},
 	{ "Octagonal", 8, {
-		stream_desc::audio_info::CH_FRONT_LEFT,
-		stream_desc::audio_info::CH_FRONT_RIGHT,
-		stream_desc::audio_info::CH_FRONT_CENTER,
-		stream_desc::audio_info::CH_SIDE_LEFT,
-		stream_desc::audio_info::CH_SIDE_RIGHT,
-		stream_desc::audio_info::CH_BACK_LEFT,
-		stream_desc::audio_info::CH_BACK_RIGHT,
-		stream_desc::audio_info::CH_BACK_CENTER,
+		CH_FRONT_LEFT,
+		CH_FRONT_RIGHT,
+		CH_FRONT_CENTER,
+		CH_SIDE_LEFT,
+		CH_SIDE_RIGHT,
+		CH_BACK_LEFT,
+		CH_BACK_RIGHT,
+		CH_BACK_CENTER,
 	}},
 	{ "Hexadecagonal", 16, {
-		stream_desc::audio_info::CH_FRONT_LEFT,
-		stream_desc::audio_info::CH_FRONT_RIGHT,
-		stream_desc::audio_info::CH_FRONT_CENTER,
-		stream_desc::audio_info::CH_SIDE_LEFT,
-		stream_desc::audio_info::CH_SIDE_RIGHT,
-		stream_desc::audio_info::CH_BACK_LEFT,
-		stream_desc::audio_info::CH_BACK_RIGHT,
-		stream_desc::audio_info::CH_BACK_CENTER,
-		stream_desc::audio_info::CH_WIDE_LEFT,
-		stream_desc::audio_info::CH_WIDE_RIGHT,
-		stream_desc::audio_info::CH_TOP_FRONT_LEFT,
-		stream_desc::audio_info::CH_TOP_FRONT_RIGHT,
-		stream_desc::audio_info::CH_TOP_FRONT_CENTER,
-		stream_desc::audio_info::CH_TOP_BACK_LEFT,
-		stream_desc::audio_info::CH_TOP_BACK_RIGHT,
-		stream_desc::audio_info::CH_TOP_BACK_CENTER,
+		CH_FRONT_LEFT,
+		CH_FRONT_RIGHT,
+		CH_FRONT_CENTER,
+		CH_SIDE_LEFT,
+		CH_SIDE_RIGHT,
+		CH_BACK_LEFT,
+		CH_BACK_RIGHT,
+		CH_BACK_CENTER,
+		CH_WIDE_LEFT,
+		CH_WIDE_RIGHT,
+		CH_TOP_FRONT_LEFT,
+		CH_TOP_FRONT_RIGHT,
+		CH_TOP_FRONT_CENTER,
+		CH_TOP_BACK_LEFT,
+		CH_TOP_BACK_RIGHT,
+		CH_TOP_BACK_CENTER
 	}},
 	{ "Stereo Downmix", 2, {
-		stream_desc::audio_info::CH_STEREO_LEFT,
-		stream_desc::audio_info::CH_STEREO_RIGHT,
+		CH_STEREO_LEFT,
+		CH_STEREO_RIGHT
 	}}
 };
 
@@ -295,7 +295,7 @@ static channel_names_t channel_names[] = {
 	{"Aux 15", NULL, NULL},
 };
 
-const stream_desc::audio_info::channel_layout* stream_desc::audio_info::GetDefaultLayoutFromCount(int ch_count)
+const channel_layout* stream_desc::audio_info::GetDefaultLayoutFromCount(int ch_count)
 {
 	switch (ch_count) {
 		case 0:
@@ -323,7 +323,7 @@ const stream_desc::audio_info::channel_layout* stream_desc::audio_info::GetDefau
 	}
 }
 
-const stream_desc::audio_info::channel_layout* stream_desc::audio_info::GetBuiltinLayoutFromType(channel_layout_type type)
+const channel_layout* stream_desc::audio_info::GetBuiltinLayoutFromType(channel_layout_type type)
 {
 	return &builtin_channel_layouts[type];
 }

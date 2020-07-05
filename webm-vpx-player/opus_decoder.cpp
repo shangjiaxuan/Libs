@@ -18,7 +18,7 @@ public:
 		err([upstream](){assert(upstream && upstream->type == stream_desc::MTYPE_AUDIO 
 								&& upstream->detail.audio.codec == stream_desc::audio_info::ACODEC_OPUS);
 								return 0; }()),
-		chan(upstream->detail.audio.layout == stream_desc::audio_info::CH_LAYOUT_MONO?1:2),
+		chan(upstream->detail.audio.layout.channel_count == 1? 1: 2),
 		freq((upstream->detail.audio.Hz== 48000||upstream->detail.audio.Hz == 24000||
 			upstream->detail.audio.Hz == 16000||upstream->detail.audio.Hz == 12000||
 			upstream->detail.audio.Hz == 8000)? upstream->detail.audio.Hz:48000),

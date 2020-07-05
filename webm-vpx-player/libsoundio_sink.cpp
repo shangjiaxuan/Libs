@@ -162,19 +162,19 @@ class soundio_sink: public audio_output_sink {
 		ost->layout.channel_count = in_stream->detail.audio.layout.channel_count;
 		for (int i = 0; i < in_stream->detail.audio.layout.channel_count; ++i) {
 			switch (in_stream->detail.audio.layout.channels[i]) {
-				case stream_desc::audio_info::CH_FRONT_CENTER:
+				case CH_FRONT_CENTER:
 					ost->layout.channels[i]=SoundIoChannelIdFrontCenter;
 					break;
-				case stream_desc::audio_info::CH_FRONT_LEFT:
+				case CH_FRONT_LEFT:
 					ost->layout.channels[i] = SoundIoChannelIdFrontLeft;
 					break;
-				case stream_desc::audio_info::CH_FRONT_RIGHT:
+				case CH_FRONT_RIGHT:
 					ost->layout.channels[i] = SoundIoChannelIdFrontRight;
 					break;
-				case stream_desc::audio_info::CH_STEREO_LEFT:
+				case CH_STEREO_LEFT:
 					ost->layout.channels[i] = SoundIoChannelIdFrontLeft;
 					break;
-				case stream_desc::audio_info::CH_STEREO_RIGHT:
+				case CH_STEREO_RIGHT:
 					ost->layout.channels[i] = SoundIoChannelIdFrontRight;
 					break;
 				default:
@@ -188,7 +188,7 @@ class soundio_sink: public audio_output_sink {
 
 
 
-		int err = soundio_outstream_open(ost);
+		err = soundio_outstream_open(ost);
 		desc_in = in_stream;
 		return;
 		failed:

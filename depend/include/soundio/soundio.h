@@ -457,18 +457,18 @@ struct SoundIoDevice {
     /// irrelevant, it is set to 0.0.
     /// For PulseAudio and WASAPI this value is unknown until you open a
     /// stream.
-    double software_latency_min;
+    volatile double software_latency_min;
     /// Software latency maximum in seconds. If this value is unknown or
     /// irrelevant, it is set to 0.0.
     /// For PulseAudio and WASAPI this value is unknown until you open a
     /// stream.
-    double software_latency_max;
+    volatile double software_latency_max;
     /// Software latency in seconds. If this value is unknown or
     /// irrelevant, it is set to 0.0.
     /// For PulseAudio and WASAPI this value is unknown until you open a
     /// stream.
     /// See SoundIoDevice::current_format
-    double software_latency_current;
+    volatile double software_latency_current;
 
     /// Raw means that you are directly opening the hardware device and not
     /// going through a proxy such as dmix, PulseAudio, or JACK. When you open a
@@ -535,7 +535,7 @@ struct SoundIoOutStream {
     ///
     /// For JACK, this value is always equal to
     /// SoundIoDevice::software_latency_current of the device.
-    double software_latency;
+    volatile double software_latency;
     /// Core Audio and WASAPI only: current output Audio Unit volume. Float, 0.0-1.0.
     float volume;
     /// Defaults to NULL. Put whatever you want here.
