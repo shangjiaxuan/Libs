@@ -2,8 +2,11 @@
 
 #include "Objects.h"
 
-struct rect_size {
-	union {
+struct rect_size
+{
+	rect_size() {}
+	union
+	{
 		atomic<uint64_t> dimension;
 		//width, height
 		int32_t data[2];

@@ -71,8 +71,8 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <LibraryPath>$(SolutionDir)depend\lib;$(LibraryPath)</LibraryPath>
-    <IncludePath>$(SolutionDir)depend\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)ffmpeg-4.2.2-win64-dev-lgpl\lib;$(SolutionDir)depend\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)ffmpeg-4.2.2-win64-dev-lgpl\include;$(SolutionDir)depend\include;$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)Build\$(PlatformTarget)-$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)Intermediates\$(ProjectName)\$(PlatformTarget)-$(Configuration)\</IntDir>
   </PropertyGroup>
@@ -85,8 +85,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <LibraryPath>$(SolutionDir)depend\lib;$(LibraryPath)</LibraryPath>
-    <IncludePath>$(SolutionDir)depend\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)depend\lib;$(SolutionDir)ffmpeg-4.2.2-win64-dev-lgpl\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)depend\include;$(SolutionDir)ffmpeg-4.2.2-win64-dev-lgpl\include;$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)Build\$(PlatformTarget)-$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)Intermediates\$(ProjectName)\$(PlatformTarget)-$(Configuration)\</IntDir>
   </PropertyGroup>

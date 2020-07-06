@@ -73,8 +73,8 @@
     <LinkIncremental>false</LinkIncremental>
     <IntDir>$(SolutionDir)Intermediates\$(ProjectName)\$(PlatformTarget)-$(Configuration)\</IntDir>
     <OutDir>$(SolutionDir)Build\$(PlatformTarget)-$(Configuration)\</OutDir>
-    <IncludePath>$(SolutionDir)depend\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)depend\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)depend\include;$(SolutionDir)ffmpeg-4.2.2-win64-dev-lgpl\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)depend\lib;$(SolutionDir)ffmpeg-4.2.2-win64-dev-lgpl\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
@@ -87,8 +87,8 @@
     <LinkIncremental>true</LinkIncremental>
     <IntDir>$(SolutionDir)Intermediates\$(ProjectName)\$(PlatformTarget)-$(Configuration)\</IntDir>
     <OutDir>$(SolutionDir)Build\$(PlatformTarget)-$(Configuration)\</OutDir>
-    <IncludePath>$(SolutionDir)depend\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)depend\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)depend\include;$(SolutionDir)ffmpeg-4.2.2-win64-dev-lgpl\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)depend\lib;$(SolutionDir)ffmpeg-4.2.2-win64-dev-lgpl\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
