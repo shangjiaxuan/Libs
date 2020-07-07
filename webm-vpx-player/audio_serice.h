@@ -2,7 +2,7 @@
 
 #include "audio_info.h"
 
-template<backend_type backend = BACKEND_DEFAULT>
+template<backend_type backend>
 class soundio_service;
 class soundio_outstream;
 

@@ -60,6 +60,7 @@ private:
 	std::chrono::time_point<std::chrono::high_resolution_clock> start_time;
 	std::chrono::time_point<std::chrono::high_resolution_clock> deplete_time;
 	rigtorp::SPSCQueue<_buffer_desc> queue{10};
+	int frames_into_front = 0;
 	static void write_callback(struct SoundIoOutStream* stream, int frame_count_min, int frame_count_max);
 	static void underflow_callback(struct SoundIoOutStream*);
 	static void error_callback(struct SoundIoOutStream*, int err);

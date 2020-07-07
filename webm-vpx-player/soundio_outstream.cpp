@@ -114,33 +114,50 @@ void soundio_outstream::write_frames(SoundIoChannelArea* areas, const channel_la
 	int frames_left = frame_count;
 	while (frames_left) {
 		int this_round;
+		bool need_pop = false;
 		if (!queue.front()) {
 			for (int i = 0; i < channels.channel_count; ++i) {
 				src[i] = (uint8_t*)&zeros;
 			}
 			this_round = frames_left;
+			src_stride = 0;
 		}
 		else {
+			_buffer_desc& buf = *queue.front();
 			if (desc_in->detail.audio.planar) {
 				src_stride = sameple_size;
-				uint8_t** _src = (uint8_t**)queue.front()->detail.audio_frame.channels;
+				uint8_t** _src = (uint8_t**)buf.detail.audio_frame.channels;
 				for (int i = 0; i < channels.channel_count; ++i) {
-					src[i] = _src[i];
+					src[i] = _src[i] + sameple_size * frames_into_front;
+				}
+				if (frames_left >= buf.detail.audio_frame.nb_samples - frames_into_front) {
+					need_pop = true;
+					this_round = buf.detail.audio_frame.nb_samples - frames_into_front;
+				}
+				else {
+					this_round = frames_left;
 				}
 			}
 			else {
 				src_stride = sameple_size * channels.channel_count;
 				for (int i = 0; i < channels.channel_count; ++i) {
-					src[i] = ((uint8_t*)queue.front()->detail.audio_frame.channels[0]) + sameple_size * i;
+					src[i] = ((uint8_t*)buf.detail.audio_frame.channels[0]) + sameple_size * i + sameple_size * frames_into_front * channels.channel_count;
 				}
 			}
 		}
 		for (int i = 0; i < channels.channel_count; ++i) {
-			for (int i = 0; i < frame_count; ++i) {
+			for (int i = 0; i < this_round; ++i) {
 				write_sample_with_fmt_convert(areas[i].ptr, src[i], sameple_size);
 				areas[i].ptr += areas[i].step;
 				src[i] += src_stride;
 			}
+		}
+		if (need_pop) {
+			frames_into_front = 0;
+			queue.pop();
+		}
+		else {
+			frames_into_front += this_round;
 		}
 	}
 

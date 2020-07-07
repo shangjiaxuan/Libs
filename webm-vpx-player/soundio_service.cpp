@@ -1,15 +1,5 @@
 #include "soundio_service.h"
 
-
-#include <mutex>
-#include <cassert>
-#include <atomic>
-#include <chrono>
-
-
-
-#include "media_sink.h"
-
 soundio_device::soundio_device(SoundIoDevice* dev):handle(dev)
 {
 	if (dev) {
@@ -428,16 +418,6 @@ void soundio_device::translate_to_soundio_layout(SoundIoChannelLayout& layout, c
 	}
 }
 
-template<>
-std::atomic_size_t soundio_service<>::refs = 0;
-template<>
-std::atomic_bool soundio_service<>::inited = false;
-template<>
-volatile SignalEventCallback soundio_service<>::current_callback = nullptr;
-template<>
-std::mutex soundio_service<>::init_mutex{};
-template<>
-SoundIo* soundio_service<>::handle = nullptr;
 
 
 

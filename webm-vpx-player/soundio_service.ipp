@@ -213,3 +213,14 @@ void soundio_service<backend>::on_events_signal(SoundIo*) noexcept
 	}
 }
 
+template<backend_type type>
+std::atomic_size_t soundio_service<type>::refs = 0;
+template<backend_type type>
+std::atomic_bool soundio_service<type>::inited = false;
+template<backend_type type>
+volatile SignalEventCallback soundio_service<type>::current_callback = nullptr;
+template<backend_type type>
+std::mutex soundio_service<type>::init_mutex{};
+template<backend_type type>
+SoundIo* soundio_service<type>::handle = nullptr;
+

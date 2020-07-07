@@ -3,6 +3,23 @@
 #include "audio_info.h"
 #include "video_info.h"
 
+#include <atomic>
+struct refed_buffer_block {
+	std::atomic<size_t> refs = 0;
+	uint8_t buffer[];
+	void unref()
+	{
+		if (1 == refs.fetch_sub(1, std::memory_order_acquire)) {
+			free(this);
+			std::atomic_thread_fence(std::memory_order_release);
+		}
+	}
+	void ref()
+	{
+		refs.fetch_add(1, std::memory_order_release);
+	}
+};
+
 class media_buffer_node;
 
 struct stream_desc {
@@ -102,8 +119,6 @@ struct stream_desc {
 		}
 		detailed_info() {}
 	} detail{};
-	media_buffer_node* upstream{};
-	media_buffer_node* downstream{};
 	struct format_detail {
 		uint8_t* CodecPrivate;
 		size_t CodecPrivateSize;
@@ -118,6 +133,19 @@ struct stream_desc {
 		}meta;
 		char* Name;
 	}format_info{};
+	media_buffer_node* upstream{};
+	media_buffer_node* downstream{};
+	enum work_mode {
+		//downstream sink pulls
+		//and owns the buffer
+		//use when downstream is realtime
+		MODE_REACTIVE,
+		//upstream source pushes
+		//and allocates the buffer
+		//but is deallocated downstream.
+		//use when upstream is realtime
+		MODE_PROACTIVE
+	} mode;
 };
 
 #include <vpx/vpx_image.h>
@@ -133,7 +161,7 @@ struct _buffer_desc {
 	uint64_t end_timestamp;
 	union buffer_detail {
 		struct packet {
-			uint8_t* buffer;
+			refed_buffer_block* buffer;
 			uint32_t size;
 			uint32_t track;
 			bool key_frame;
@@ -156,7 +184,8 @@ struct _buffer_desc {
 	//implemented by protocol.
 	//eg.  free(_this->data) or perhaps
 	//glDeleteTextures(1,(GLuint*)&_this->data)
-	void (*release)(_buffer_desc* _this, void* ptr) = nullptr;
+	void (*release)(_buffer_desc* _this) = nullptr;
+	void* release_private_ptr = nullptr;
 };
 
 constexpr size_t size = sizeof(_buffer_desc);

@@ -35,9 +35,6 @@
     <ClCompile Include="soundio_service.cpp">
       <Filter>service\audio_service</Filter>
     </ClCompile>
-    <ClCompile Include="main6.cpp">
-      <Filter>playground</Filter>
-    </ClCompile>
     <ClCompile Include="..\oglplayer\libsoundio\src\channel_layout.c">
       <Filter>libsoundio</Filter>
     </ClCompile>
@@ -62,10 +59,13 @@
     <ClCompile Include="main8.cpp">
       <Filter>playground</Filter>
     </ClCompile>
-    <ClCompile Include="main.cpp" />
     <ClCompile Include="soundio_outstream.cpp">
       <Filter>media_node\media_sink</Filter>
     </ClCompile>
+    <ClCompile Include="main9.cpp">
+      <Filter>playground</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="mkv_sink.h">

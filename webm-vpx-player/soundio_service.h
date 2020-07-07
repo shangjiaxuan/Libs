@@ -44,7 +44,7 @@ protected:
 
 typedef void (*SignalEventCallback)(backend_type backend);
 
-template<backend_type backend>
+template<backend_type backend = BACKEND_DEFAULT>
 class soundio_service {
 public:
 	soundio_service();

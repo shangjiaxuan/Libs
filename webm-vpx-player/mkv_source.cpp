@@ -4,6 +4,7 @@
 #include <cstdlib>
 #include <vector>
 #include <matroska/matroska2.h>
+#include <atomic>
 
 mkv_source::mkv_source()
 {
@@ -142,7 +143,6 @@ mkv_source::~mkv_source()
 class mkv_file_source:public mkv_source {
 	FILE* mfile_handle = nullptr;
 	uint64_t file_pos = 0;
-	std::vector<std::vector<char>> buffers;
 public:
 	virtual int FetchBuffer(_buffer_desc& buffer) override final
 	{
@@ -173,6 +173,7 @@ public:
 			buffer.detail.pkt.key_frame = 0;
 		buffer.release = release_frame;
 		buffer.stream=&desc_out[track];
+		desc_out[track].downstream->QueueBuffer(buffer);
 		return 0;
 	}
 	virtual int ReleaseBuffer(_buffer_desc& buffer) override final
@@ -268,10 +269,11 @@ private:
 	static void* makeref(InputStream* inf, int count)
 	{
 		mkv_file_source& reading = *(mkv_file_source*)inf->ptr;
-		std::vector<char> temp(count);
-		fread(&temp[0], 1, count, reading.mfile_handle);
-		reading.buffers.emplace_back(std::move(temp));
-		return &reading.buffers.back()[0];
+		refed_buffer_block* block = (refed_buffer_block*)inf->memalloc(inf, sizeof(refed_buffer_block) + count);
+		new(block)refed_buffer_block();
+		block->ref();
+		fread(block->buffer, 1, count, reading.mfile_handle);
+		return block;
 	}
 	static void* memalloc(InputStream* inf, size_t count) noexcept
 	{
@@ -299,17 +301,8 @@ private:
 	}
 	static void releaseref(InputStream* inf, void* ref)
 	{
-		mkv_file_source& reading = *(mkv_file_source*)inf->ptr;
-		for (uint64_t i = 0; i < reading.buffers.size(); ++i) {
-			if (&reading.buffers[i][0] == ref) {
-				for (uint64_t j = i; j < reading.buffers.size() - 1; ++j) {
-					reading.buffers[j] = std::move(reading.buffers[j + 1]);
-				}
-				//need this for valid buffer list.
-				reading.buffers.pop_back();
-				break;
-			}
-		}
+		refed_buffer_block* block = (refed_buffer_block*)ref;
+		block->unref();
 	}
 };
 
