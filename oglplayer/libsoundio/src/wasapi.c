@@ -528,6 +528,10 @@ static void deinit_refresh_devices(struct RefreshDevices *rd) {
         CoTaskMemFree(rd->wave_format);
     if (rd->audio_client)
         IUnknown_Release(rd->audio_client);
+    if (rd->default_render_id)
+        free(rd->default_render_id);
+    if (rd->default_capture_id)
+        free(rd->default_capture_id);
 }
 
 static int detect_valid_layouts(struct RefreshDevices *rd, WAVEFORMATEXTENSIBLE *wave_format,

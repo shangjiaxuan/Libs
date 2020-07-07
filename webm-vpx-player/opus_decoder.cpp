@@ -12,6 +12,7 @@ class opus_decoder: public audio_decoder {
 	float buffer[5760 * 2]{};
 	int nb_samples = 0;
 	stream_desc out_stream;
+	uint64_t cur_frame = 0;
 public:
 	opus_decoder(stream_desc* upstream):
 		audio_decoder(decoder_type::AD_OPUS_DIRECT), 
@@ -33,6 +34,8 @@ public:
 		out_stream.detail.audio.format.isBE = 0;
 		out_stream.detail.audio.format.isunsigned = 0;
 		out_stream.detail.audio.format.bitdepth = 32;
+		out_stream.time_base.num = 1;
+		out_stream.time_base.den = freq;
 		desc_in = upstream;
 		desc_out = &out_stream;
 	}
@@ -42,8 +45,8 @@ public:
 	}
 	virtual int QueueBuffer(_buffer_desc& in_buffer) override final
 	{
-		nb_samples = opus_decoder_get_nb_samples(handle, (uint8_t*)in_buffer.data, in_buffer.data1);
-		int err = opus_decode_float(handle, (uint8_t*)in_buffer.data, in_buffer.data1, buffer, nb_samples, 0);
+		nb_samples = opus_decoder_get_nb_samples(handle, in_buffer.detail.pkt.buffer, in_buffer.detail.pkt.size);
+		int err = opus_decode_float(handle, in_buffer.detail.pkt.buffer, in_buffer.detail.pkt.size, buffer, nb_samples, 0);
 		if (err) nb_samples = 0;
 		return err;
 	}
@@ -51,8 +54,14 @@ public:
 	{
 		if (!nb_samples)
 			return E_AGAIN;
-		out_buffer.data = buffer;
-		out_buffer.data1 = nb_samples;
+		out_buffer.detail.audio_frame.channels[0] = buffer;
+		out_buffer.detail.audio_frame.nb_samples = nb_samples;
+		out_buffer.detail.audio_frame.sample_rate = freq;
+		out_buffer.stream = desc_out;
+		out_buffer.release = nullptr;
+		out_buffer.start_timestamp = cur_frame;
+		out_buffer.end_timestamp = cur_frame+nb_samples;
+		cur_frame+=nb_samples;
 		nb_samples = 0;
 		return S_OK;
 	}

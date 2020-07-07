@@ -31,9 +31,6 @@
     <ClCompile Include="opus_decoder.cpp">
       <Filter>media_node\media_transform\audio</Filter>
     </ClCompile>
-    <ClCompile Include="libsoundio_sink.cpp">
-      <Filter>media_node\media_sink</Filter>
-    </ClCompile>
     <ClCompile Include="media_buffer.cpp" />
     <ClCompile Include="soundio_service.cpp">
       <Filter>service\audio_service</Filter>
@@ -41,7 +38,6 @@
     <ClCompile Include="main6.cpp">
       <Filter>playground</Filter>
     </ClCompile>
-    <ClCompile Include="main.cpp" />
     <ClCompile Include="..\oglplayer\libsoundio\src\channel_layout.c">
       <Filter>libsoundio</Filter>
     </ClCompile>
@@ -63,6 +59,13 @@
     <ClCompile Include="..\oglplayer\libsoundio\src\ring_buffer.c">
       <Filter>libsoundio</Filter>
     </ClCompile>
+    <ClCompile Include="main8.cpp">
+      <Filter>playground</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="soundio_outstream.cpp">
+      <Filter>media_node\media_sink</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="mkv_sink.h">
@@ -83,13 +86,7 @@
     <ClInclude Include="media_transform.h">
       <Filter>media_node\media_transform</Filter>
     </ClInclude>
-    <ClInclude Include="audio_output_sink.h">
-      <Filter>media_node\media_sink</Filter>
-    </ClInclude>
     <ClInclude Include="audio_serice.h">
-      <Filter>service\audio_service</Filter>
-    </ClInclude>
-    <ClInclude Include="audio_info.h">
       <Filter>service\audio_service</Filter>
     </ClInclude>
     <ClInclude Include="soundio_service.h">
@@ -99,7 +96,13 @@
       <Filter>service\audio_service</Filter>
     </ClInclude>
     <ClInclude Include="soundio_outstream.h">
-      <Filter>service\audio_service</Filter>
+      <Filter>media_node\media_sink</Filter>
+    </ClInclude>
+    <ClInclude Include="audio_info.h">
+      <Filter>enums</Filter>
+    </ClInclude>
+    <ClInclude Include="video_info.h">
+      <Filter>enums</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -132,6 +135,9 @@
     </Filter>
     <Filter Include="libsoundio">
       <UniqueIdentifier>{47e848c2-e933-49eb-9704-886d8b57c47e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="enums">
+      <UniqueIdentifier>{d14f50ba-2073-4488-ad9f-a9ccda17dcf1}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

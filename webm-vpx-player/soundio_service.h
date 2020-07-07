@@ -5,6 +5,7 @@
 #include <mutex>
 #include <atomic>
 #include <cassert>
+#include <memory>
 
 class soundio_device:public audio_device_ref {
 public:
@@ -12,6 +13,8 @@ public:
 	~soundio_device() override final;
 	soundio_device(soundio_device& dev);
 	soundio_device& operator=(soundio_device& dev);
+	soundio_device(soundio_device&& dev) noexcept;
+	soundio_device& operator=(soundio_device&& dev) noexcept;
 	operator SoundIoDevice* ();
 	virtual bool FormatSupported(SampleFormat fmt) override final;
 	virtual int NearestSupportedSampleRate(int rate) override final;
@@ -80,6 +83,7 @@ private:
 	static void jack_error_callback(const char* msg) noexcept;
 	static void on_events_signal(struct SoundIo*) noexcept;
 	static volatile SignalEventCallback current_callback;
+
 };
 
 #include "soundio_service.ipp"

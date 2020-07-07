@@ -34,9 +34,9 @@ int mkv_source::finish_init()
 			stream_desc::video_info oinfo{};
 			oinfo.width = info->AV.Video.PixelWidth;
 			oinfo.height = info->AV.Video.PixelHeight;
-			oinfo.subsample_horiz = 1;
-			oinfo.subsample_vert = 1;
-			oinfo.bitdepth = 8;
+			oinfo.fmt.subsample_horiz = 1;
+			oinfo.fmt.subsample_vert = 1;
+			oinfo.fmt.bitdepth = 8;
 			if (info->AV.Video.Colour.CbSubsamplingHorz || info->AV.Video.Colour.CbSubsamplingVert ||
 				info->AV.Video.Colour.ChromaSubsamplingHorz || info->AV.Video.Colour.ChromaSubsamplingVert) {
 				if (!info->AV.Video.Colour.CbSubsamplingHorz && info->AV.Video.Colour.ChromaSubsamplingHorz)
@@ -62,17 +62,15 @@ int mkv_source::finish_init()
 						info->AV.Video.Colour.ChromaSubsamplingVert = 1;
 					}
 				}
-				oinfo.subsample_horiz = info->AV.Video.Colour.CbSubsamplingHorz;
-				oinfo.subsample_vert = info->AV.Video.Colour.CbSubsamplingVert;
-				oinfo.subsample_horiz = info->AV.Video.Colour.CbSubsamplingHorz;
-				oinfo.subsample_vert = info->AV.Video.Colour.CbSubsamplingVert;
+				oinfo.fmt.subsample_horiz = info->AV.Video.Colour.CbSubsamplingHorz;
+				oinfo.fmt.subsample_vert = info->AV.Video.Colour.CbSubsamplingVert;
 			}
 			if (info->AV.Video.Colour.BitsPerChannel) {
-				oinfo.bitdepth = info->AV.Video.Colour.BitsPerChannel;
-				oinfo.bitdepth = info->AV.Video.Colour.BitsPerChannel;
+				oinfo.fmt.bitdepth = info->AV.Video.Colour.BitsPerChannel;
+				oinfo.fmt.bitdepth = info->AV.Video.Colour.BitsPerChannel;
 			}
 			if (info->AV.Video.Colour.ChromaSitingHorz && info->AV.Video.Colour.ChromaSitingVert) {
-				oinfo.location = stream_desc::video_info::SUBSAMP_LEFT_CORNER;
+				oinfo.fmt.location = SUBSAMP_LEFT_CORNER;
 			}
 			if (strcmp(info->CodecID, "V_VP9") == 0) {
 				oinfo.codec = stream_desc::video_info::VCODEC_VP9;
@@ -149,34 +147,39 @@ public:
 	virtual int FetchBuffer(_buffer_desc& buffer) override final
 	{
 		//check protocol error here
-		if (buffer.data && buffer.ptr && buffer.release) {
-			buffer.release(&buffer, buffer.ptr);
-			buffer.data = nullptr;
+		if (buffer.detail.pkt.buffer && buffer.release) {
+			buffer.release(&buffer, this);
+			buffer.detail.pkt.buffer = nullptr;
 		}
 		unsigned int flags;
 		uint32_t track, size;
 		uint64_t start, end;
-		int err = mkv_ReadFrame(file, 0, &track, &start, &end, &file_pos, &size, (void**)&buffer.data, &flags);
-		buffer.data2 = track;
-		buffer.data1 = size;
-		buffer.start_time = start;
-		buffer.end_time = end;
+		int err = mkv_ReadFrame(file, 0, &track, &start, &end, &file_pos, &size, (void**)&buffer.detail.pkt.buffer, &flags);
+		buffer.detail.pkt.track = track;
+		buffer.detail.pkt.size = size;
+		buffer.start_timestamp = start;
+		buffer.end_timestamp = end;
+		if (!(flags & FRAME_UNKNOWN_END && flags & FRAME_UNKNOWN_START)) {
+			if(flags & FRAME_UNKNOWN_END)
+				buffer.end_timestamp = buffer.start_timestamp;
+			else if(flags & FRAME_UNKNOWN_START)
+				buffer.start_timestamp = buffer.end_timestamp;
+		}
 		if (err)
 			return err;
 		if (flags & FRAME_KF)
-			buffer.data3 = 1;
+			buffer.detail.pkt.key_frame = 1;
 		else
-			buffer.data3 = 0;
+			buffer.detail.pkt.key_frame = 0;
 		buffer.release = release_frame;
-		buffer.ptr = &istream;
 		buffer.stream=&desc_out[track];
 		return 0;
 	}
 	virtual int ReleaseBuffer(_buffer_desc& buffer) override final
 	{
-		if (buffer.data && buffer.ptr && buffer.release) {
-			buffer.release(&buffer, buffer.ptr);
-			buffer.data = nullptr;
+		if (buffer.detail.pkt.buffer && buffer.release) {
+			buffer.release(&buffer, this);
+			buffer.detail.pkt.buffer = nullptr;
 		}
 		return 0;
 	}
@@ -191,8 +194,8 @@ private:
 	static void release_frame(_buffer_desc* buffer, void* stream)
 	{
 		mkv_file_source* __this = (mkv_file_source*)stream;
-		__this->istream.releaseref(&__this->istream,buffer->data);
-		buffer->data = nullptr;
+		__this->istream.releaseref(&__this->istream, buffer->detail.pkt.buffer);
+		buffer->detail.pkt.buffer = nullptr;
 	}
 protected:
 	friend mkv_source_factory;

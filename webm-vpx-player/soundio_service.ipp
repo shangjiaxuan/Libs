@@ -138,7 +138,8 @@ soundio_device soundio_service<backend>::GetInputDeviceFromIndex(int index)
 template<backend_type backend>
 soundio_device soundio_service<backend>::GetOutputDeviceFromIndex(int index)
 {
-	soundio_device dev = soundio_get_output_device(handle, index);
+	SoundIoDevice* dev_ = soundio_get_output_device(handle, index);
+	soundio_device dev = dev_;
 	soundio_device_sort_channel_layouts(dev);
 	soundio_device_unref(dev);
 	return std::move(dev);

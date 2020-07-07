@@ -56,27 +56,27 @@ int mkv_sink::AddTrack(const stream_desc& info)
 				default:
 					return E_UNIMPLEMENTED;
 			}
-			track.AV.Video.Colour.BitsPerChannel = info.detail.video.bitdepth;
-			track.AV.Video.Colour.CbSubsamplingHorz  = info.detail.video.subsample_horiz;
-			track.AV.Video.Colour.CbSubsamplingVert = info.detail.video.subsample_vert;
-			track.AV.Video.Colour.ChromaSubsamplingHorz = info.detail.video.subsample_horiz;
-			track.AV.Video.Colour.ChromaSubsamplingVert = info.detail.video.subsample_vert;
-			if (info.detail.video.location) {
+			track.AV.Video.Colour.BitsPerChannel = info.detail.video.fmt.bitdepth;
+			track.AV.Video.Colour.CbSubsamplingHorz  = info.detail.video.fmt.subsample_horiz;
+			track.AV.Video.Colour.CbSubsamplingVert = info.detail.video.fmt.subsample_vert;
+			track.AV.Video.Colour.ChromaSubsamplingHorz = info.detail.video.fmt.subsample_horiz;
+			track.AV.Video.Colour.ChromaSubsamplingVert = info.detail.video.fmt.subsample_vert;
+			if (info.detail.video.fmt.location) {
 				track.AV.Video.Colour.ChromaSitingHorz = 1;
 				track.AV.Video.Colour.ChromaSitingVert = 1;
 			}
 			switch (info.detail.video.range) {
-				case stream_desc::video_info::CR_STUDIO_RANGE:
+				case CR_STUDIO_RANGE:
 					track.AV.Video.Colour.Range = 1;
 					break;
-				case stream_desc::video_info::CR_FULL_RANGE:
+				case CR_FULL_RANGE:
 					track.AV.Video.Colour.Range = 2;
 					break;
 				default:
 					track.AV.Video.Colour.Range = 0;
 			}
 			switch (info.detail.video.space) {
-				case stream_desc::video_info::CS_UNKNOWN:
+				case CS_UNKNOWN:
 					break;
 				default:
 					return E_UNIMPLEMENTED;
@@ -197,7 +197,8 @@ public:
 	{
 		if(!writing) 
 			return E_INVALID_OPERATION;
-		mkv_WriteFrame(file, buffer.data2, buffer.start_time, buffer.end_time, buffer.data1, buffer.data, buffer.data3, 0);
+		mkv_WriteFrame(file, buffer.detail.pkt.track, buffer.start_timestamp, buffer.end_timestamp,
+			buffer.detail.pkt.size, buffer.detail.pkt.buffer, buffer.detail.pkt.key_frame, 0);
 		return S_OK;
 	}
 	virtual int AllocBuffer(_buffer_desc& buffer) override final

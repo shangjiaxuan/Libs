@@ -2,6 +2,11 @@
 
 #include <cstdint>
 
+struct rational {
+	uint32_t num;
+	uint32_t den;
+};
+
 enum error_type {
 	//OK = 0
 	S_OK,

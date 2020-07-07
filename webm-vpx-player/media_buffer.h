@@ -1,6 +1,7 @@
 #pragma once
 
 #include "audio_info.h"
+#include "video_info.h"
 
 class media_buffer_node;
 
@@ -14,20 +15,6 @@ struct stream_desc {
 	};
 	major_type type{MTYPE_NONE};
 	struct video_info {
-		enum color_space {
-			CS_UNKNOWN = 0,   /**< Unknown */
-			CS_BT_601 = 1,    /**< BT.601 */
-			CS_BT_709 = 2,    /**< BT.709 */
-			CS_SMPTE_170 = 3, /**< SMPTE.170 */
-			CS_SMPTE_240 = 4, /**< SMPTE.240 */
-			CS_BT_2020 = 5,   /**< BT.2020 */
-			CS_RESERVED = 6,  /**< Reserved */
-			CS_SRGB = 7       /**< sRGB */
-		};
-		enum color_range {
-			CR_STUDIO_RANGE = 0, /**< Y [16..235], UV [16..240] */
-			CR_FULL_RANGE = 1    /**< YUV/RGB [0..255] */
-		};
 		enum video_codec {
 			VCODEC_NONE,
 			VCODEC_NOTSUPPORTED,
@@ -38,13 +25,7 @@ struct stream_desc {
 		} codec;
 		color_space space;
 		color_range range;
-		enum subsample_location: uint8_t {
-			SUBSAMP_CENTER,
-			SUBSAMP_LEFT_CORNER
-		};
-		uint8_t subsample_horiz, subsample_vert;
-		subsample_location location;
-		int bitdepth, invert_uv;
+		video_sample_format fmt;
 		unsigned width, height;
 	};
 	struct audio_info {
@@ -107,6 +88,7 @@ struct stream_desc {
 		static const char* GetChannelName(channel_id id);
 		static const char* GetBuiltinLayoutDefaultName(channel_layout_type type);
 	};
+	rational time_base{};
 	union detailed_info {
 		video_info video;
 		audio_info audio;
@@ -138,6 +120,7 @@ struct stream_desc {
 	}format_info{};
 };
 
+#include <vpx/vpx_image.h>
 struct _buffer_desc {
 	//for abi and compatibility
 	const uint32_t desc_size = sizeof(_buffer_desc);
@@ -145,22 +128,38 @@ struct _buffer_desc {
 	const uint32_t type;
 	//the stream the buffer is in
 	stream_desc* stream;
-	//the pointer to memory or struct
-	//that holds the actual data.
-	void* data;
-	void* ptr;
+	//supplemental data and flags (depends on protocol)
+	uint64_t start_timestamp;
+	uint64_t end_timestamp;
+	union buffer_detail {
+		struct packet {
+			uint8_t* buffer;
+			uint32_t size;
+			uint32_t track;
+			bool key_frame;
+		} pkt;
+		struct image_frame {
+			bool planar;
+			void* planes[4]{};
+			int line_size[4]{};
+			int width, height;
+			int crop_left, crop_right, crop_top, crop_bottom;
+			color_space space;
+			color_range range;
+		} image;
+		struct audio_frame {
+			void* channels[max_channels]{};
+			int nb_samples;
+			int sample_rate;
+		} audio_frame;
+	} detail;
 	//implemented by protocol.
 	//eg.  free(_this->data) or perhaps
 	//glDeleteTextures(1,(GLuint*)&_this->data)
 	void (*release)(_buffer_desc* _this, void* ptr) = nullptr;
-	//supplemental data and flags (depends on protocol)
-	uint64_t start_time;
-	uint64_t end_time;
-	uint64_t data1;
-	uint64_t data2;
-	uint64_t data3;
 };
 
+constexpr size_t size = sizeof(_buffer_desc);
 
 struct _output_desc {
 	//for abi and compatibility
@@ -176,21 +175,6 @@ struct _output_desc {
 //itself. The one that allocates the descriptor
 //is responsible fpr freeing it.
 class media_buffer_node {
-public:
-	enum buffer_error {
-		//OK = 0
-		S_OK,
-		//Signals end of stream, must be implemented
-		E_EOF,
-		//Signals need of more input, passed downstream
-		E_AGAIN,
-		//Not yet implemented
-		E_UNIMPLEMENTED,
-		//Sanity check for invalid usage
-		E_INVALID_OPERATION,
-		//Sanity check for invalid topology building
-		E_PROTOCOL_MISMATCH
-	};
 protected:
 	//only allocate this if final overrirde
 	stream_desc* desc_out= nullptr;

@@ -14,7 +14,6 @@ soundio_device::soundio_device(SoundIoDevice* dev):handle(dev)
 {
 	if (dev) {
 		soundio_device_ref(dev);
-		handle = dev;
 	}
 }
 
@@ -37,6 +36,20 @@ soundio_device& soundio_device::operator=(soundio_device & dev)
 		soundio_device_ref(dev);
 		handle = dev.handle;
 	}
+	return *this;
+}
+
+soundio_device::soundio_device(soundio_device&& dev) noexcept
+{
+	handle = dev.handle;
+	dev.handle = nullptr;
+}
+
+soundio_device& soundio_device::operator=(soundio_device && dev) noexcept
+{
+	// TODO: insert return statement here
+	handle = dev.handle;
+	dev.handle = nullptr;
 	return *this;
 }
 
