@@ -21,6 +21,7 @@ enum error_type {
 	//Sanity check for invalid topology building
 	E_PROTOCOL_MISMATCH
 };
+
 struct SampleFormat {
 	int8_t bitdepth;
 	uint8_t isfloat : 1;

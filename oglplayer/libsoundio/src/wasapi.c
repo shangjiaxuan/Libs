@@ -1895,7 +1895,7 @@ static int outstream_get_latency_wasapi(struct SoundIoPrivate *si, struct SoundI
     double time1 = device_offset/double(device_frequency);
     double time2 = osw->write_frame_offset / double(outstream->sample_rate);
     *out_latency = time2-time1;
-    outstream->software_latency = time2-time1;
+ //   outstream->software_latency = time2-time1;
     return 0;
 }
 

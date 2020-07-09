@@ -1,0 +1,38 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\oglplayer\libsoundio\src\channel_layout.c">
+      <Filter>soundio</Filter>
+    </ClCompile>
+    <ClCompile Include="..\oglplayer\libsoundio\src\dummy.c">
+      <Filter>soundio</Filter>
+    </ClCompile>
+    <ClCompile Include="..\oglplayer\libsoundio\src\os.c">
+      <Filter>soundio</Filter>
+    </ClCompile>
+    <ClCompile Include="..\oglplayer\libsoundio\src\soundio.c">
+      <Filter>soundio</Filter>
+    </ClCompile>
+    <ClCompile Include="..\oglplayer\libsoundio\src\util.c">
+      <Filter>soundio</Filter>
+    </ClCompile>
+    <ClCompile Include="..\oglplayer\libsoundio\src\wasapi.c">
+      <Filter>soundio</Filter>
+    </ClCompile>
+    <ClCompile Include="..\oglplayer\libsoundio\src\ring_buffer.c">
+      <Filter>soundio</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="..\webm-vpx-player\media_buffer.cpp">
+      <Filter>soundio</Filter>
+    </ClCompile>
+    <ClCompile Include="..\webm-vpx-player\mkv_source.cpp">
+      <Filter>soundio</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="soundio">
+      <UniqueIdentifier>{3bae9078-ef00-4ee7-b09c-e6a07b7ef94f}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

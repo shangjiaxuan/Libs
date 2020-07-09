@@ -5,6 +5,7 @@
 #include <mutex>
 #include <vpx/vp8dx.h>
 #include <cassert>
+#include <rigtorp/SPSCQueue.h>
 
 //implemets the default vp9 decoder with internal
 //framebuffers and frame by frame decoding.
@@ -22,6 +23,7 @@ class libvpx_vp9_ram_decoder: public video_decoder {
 	std::once_flag once_flag;
 	bool default_calling_probe = false;
 	stream_desc out_stream;
+	rigtorp::SPSCQueue<_buffer_desc> in_queue{10};
 public:
 	libvpx_vp9_ram_decoder(stream_desc* upstream, uint32_t threads = 1, int flags = VPX_CODEC_USE_POSTPROC):
 		video_decoder(decoder_type::VD_VP9_RAM_VPX_IMG_DECODER),iface(vpx_codec_vp9_dx()), 
@@ -34,6 +36,7 @@ public:
 		out_stream.detail.video.codec = stream_desc::video_info::VCODEC_RAW;
 		out_stream.upstream = this;
 		out_stream.time_base = upstream->time_base;
+		out_stream.mode = stream_desc::MODE_REACTIVE;
 		upstream->downstream = this;
 		desc_in = upstream;
 		desc_out = &out_stream;
@@ -47,8 +50,12 @@ public:
 	{
 		//make checks here
 		//assume 64 bit
+		//in_queue.emplace(buffer);
 		assert(sizeof(void*)==sizeof(buffer.start_timestamp));
-		return vpx_codec_decode(&ctx, (uint8_t*)buffer.detail.pkt.buffer,buffer.detail.pkt.size, (void*)buffer.start_timestamp, 0);
+		int err = vpx_codec_decode(&ctx, buffer.detail.pkt.buffer->buffer,buffer.detail.pkt.size, (void*)buffer.start_timestamp, 0);
+		buffer.release(&buffer);
+//		return err;
+		return S_OK;
 	}
 	//for decoders, this means getting a frame from decoder
 	virtual int FetchBuffer(_buffer_desc& buffer) override final

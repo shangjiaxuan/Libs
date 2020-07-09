@@ -1,10 +1,12 @@
 #include "mkv_source.h"
+#include "media_buffer.h"
 
 #include <cstdio>
 #include <cstdlib>
 #include <vector>
 #include <matroska/matroska2.h>
 #include <atomic>
+#include <cassert>
 
 mkv_source::mkv_source()
 {
@@ -29,6 +31,7 @@ int mkv_source::finish_init()
 	num_out = mkv_GetNumTracks(file);
 	desc_out = new stream_desc[num_out]();
 	for (size_t i = 0; i < num_out; ++i) {
+		desc_out[i].mode = stream_desc::MODE_DOWN_NOTIFY_UP;
 		TrackInfo* info = mkv_GetTrackInfo(file,i);
 		if (info->Type == TRACK_TYPE_VIDEO) {
 			desc_out[i].type = stream_desc::MTYPE_VIDEO;
@@ -148,13 +151,16 @@ public:
 	{
 		//check protocol error here
 		if (buffer.detail.pkt.buffer && buffer.release) {
-			buffer.release(&buffer, this);
+			buffer.release(&buffer);
 			buffer.detail.pkt.buffer = nullptr;
 		}
 		unsigned int flags;
 		uint32_t track, size;
 		uint64_t start, end;
 		int err = mkv_ReadFrame(file, 0, &track, &start, &end, &file_pos, &size, (void**)&buffer.detail.pkt.buffer, &flags);
+		if (err)
+			return err;
+		assert(buffer.detail.pkt.buffer->refs == 1);
 		buffer.detail.pkt.track = track;
 		buffer.detail.pkt.size = size;
 		buffer.start_timestamp = start;
@@ -165,21 +171,21 @@ public:
 			else if(flags & FRAME_UNKNOWN_START)
 				buffer.start_timestamp = buffer.end_timestamp;
 		}
-		if (err)
-			return err;
 		if (flags & FRAME_KF)
 			buffer.detail.pkt.key_frame = 1;
 		else
 			buffer.detail.pkt.key_frame = 0;
 		buffer.release = release_frame;
 		buffer.stream=&desc_out[track];
-		desc_out[track].downstream->QueueBuffer(buffer);
+		buffer.release_private_ptr = this;
+		if(desc_out[track].downstream)
+			desc_out[track].downstream->QueueBuffer(buffer);
 		return 0;
 	}
 	virtual int ReleaseBuffer(_buffer_desc& buffer) override final
 	{
 		if (buffer.detail.pkt.buffer && buffer.release) {
-			buffer.release(&buffer, this);
+			buffer.release(&buffer);
 			buffer.detail.pkt.buffer = nullptr;
 		}
 		return 0;
@@ -192,9 +198,9 @@ public:
 		}
 	}
 private:
-	static void release_frame(_buffer_desc* buffer, void* stream)
+	static void release_frame(_buffer_desc* buffer)
 	{
-		mkv_file_source* __this = (mkv_file_source*)stream;
+		mkv_file_source* __this = (mkv_file_source*)buffer->release_private_ptr;
 		__this->istream.releaseref(&__this->istream, buffer->detail.pkt.buffer);
 		buffer->detail.pkt.buffer = nullptr;
 	}

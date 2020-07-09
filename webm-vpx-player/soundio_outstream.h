@@ -59,11 +59,15 @@ private:
 	soundio_device device;
 	std::chrono::time_point<std::chrono::high_resolution_clock> start_time;
 	std::chrono::time_point<std::chrono::high_resolution_clock> deplete_time;
-	rigtorp::SPSCQueue<_buffer_desc> queue{10};
-	int frames_into_front = 0;
 	static void write_callback(struct SoundIoOutStream* stream, int frame_count_min, int frame_count_max);
 	static void underflow_callback(struct SoundIoOutStream*);
 	static void error_callback(struct SoundIoOutStream*, int err);
 	void (*write_sample_with_fmt_convert)(void* dst, const void* src, size_t size) noexcept = nullptr;
 	size_t sameple_size = 0;
+	//TODO: match this with ouput dynamically
+	uint8_t* buffer[max_channels]{};
+	size_t frame_num = 0;
+	size_t cur_frame = 0;
+	bool need_convert_now = true;
+	static bool need_convert(SoundIoChannelArea* areas, SampleFormat in_fmt, SampleFormat out_fmt, const channel_layout& in_channels, const channel_layout& out_channels, bool in_planar, int sample_num);
 };

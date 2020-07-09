@@ -136,29 +136,53 @@ struct stream_desc {
 	media_buffer_node* upstream{};
 	media_buffer_node* downstream{};
 	enum work_mode {
+		MODE_INVALID,
 		//downstream sink pulls
 		//and owns the buffer
 		//use when downstream is realtime
+		//The fetch and queue are called
+		//directly from the same thread as
+		//downstream.
 		MODE_REACTIVE,
 		//upstream source pushes
 		//and allocates the buffer
 		//but is deallocated downstream.
 		//use when upstream is realtime
-		MODE_PROACTIVE
+		//The fetch and queue are called
+		//directly from the same thread as
+		//upstream.
+		MODE_PROACTIVE,
+		//When other downstream is realtime
+		//and this may or may not not be.
+		//Fetching is done for as much as
+		//demuxing has reached a packet for the
+		//demanding stream. The other 
+		//streams must queue the buffers.
+		//Typically used when demuxing and
+		//the downstream buffer is empty.
+		MODE_DOWN_NOTIFY_UP,
+		//When other upstream is realtime
+		//and this may or may not not be.
+		//Pushing must be serialized to have
+		//correct handling. E.g. when an
+		//encoder finishes encoding a packet
+		//and wakes up the muxer.
+		MODE_UP_NOTIFY_DOWN
 	} mode;
 };
 
 #include <vpx/vpx_image.h>
+#include <cstdio>
 struct _buffer_desc {
 	//for abi and compatibility
 	const uint32_t desc_size = sizeof(_buffer_desc);
 	//the flag for protocol (input)
-	const uint32_t type;
+	const uint32_t type = 0;
 	//the stream the buffer is in
-	stream_desc* stream;
+	stream_desc* stream = nullptr;
 	//supplemental data and flags (depends on protocol)
-	uint64_t start_timestamp;
-	uint64_t end_timestamp;
+	uint64_t start_timestamp = 0;
+	uint64_t end_timestamp = 0;
 	union buffer_detail {
 		struct packet {
 			refed_buffer_block* buffer;
@@ -179,7 +203,18 @@ struct _buffer_desc {
 			void* channels[max_channels]{};
 			int nb_samples;
 			int sample_rate;
-		} audio_frame;
+		} aframe;
+		buffer_detail(const audio_frame& frame):aframe(frame){};
+		buffer_detail(const image_frame& img):image(img){};
+		buffer_detail(const packet& p):pkt(p){
+			printf("copied");
+		};
+		buffer_detail(const buffer_detail& d) {
+			memcpy(this,&d,sizeof(d));
+		};
+		buffer_detail() {
+			memset(this, 0, sizeof(buffer_detail));
+		};
 	} detail;
 	//implemented by protocol.
 	//eg.  free(_this->data) or perhaps

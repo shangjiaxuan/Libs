@@ -20,8 +20,8 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
-    <ProjectGuid>{8F224E8B-9E89-495D-8EBD-77CA2495D1B0}</ProjectGuid>
-    <RootNamespace>webmvpxplayer</RootNamespace>
+    <ProjectGuid>{C10DB7B2-49A7-4E21-9610-73E29BF98783}</ProjectGuid>
+    <RootNamespace>opusdecode</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -69,51 +69,47 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(SolutionDir)depend\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)depend\lib;$(LibraryPath)</LibraryPath>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
     <OutDir>$(SolutionDir)Build\$(PlatformTarget)-$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)Intermediates\$(ProjectName)\$(PlatformTarget)-$(Configuration)\</IntDir>
+    <IncludePath>$(SolutionDir)depend\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)depend\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(SolutionDir)depend\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)depend\lib;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)Build\$(PlatformTarget)-$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)Intermediates\$(ProjectName)\$(PlatformTarget)-$(Configuration)\</IntDir>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LinkIncremental>true</LinkIncremental>
     <IncludePath>$(SolutionDir)depend\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)depend\lib;$(LibraryPath)</LibraryPath>
-    <OutDir>$(SolutionDir)Build\$(PlatformTarget)-$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)Intermediates\$(ProjectName)\$(PlatformTarget)-$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(SolutionDir)depend\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)depend\lib;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)Build\$(PlatformTarget)-$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)Intermediates\$(ProjectName)\$(PlatformTarget)-$(Configuration)\</IntDir>
+    <IncludePath>$(SolutionDir)depend\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)depend\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(SolutionDir)Build\$(PlatformTarget)-$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)Intermediates\$(ProjectName)\$(PlatformTarget)-$(Configuration)\</IntDir>
+    <IncludePath>$(SolutionDir)depend\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)depend\lib;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
-      <FunctionLevelLinking>true</FunctionLevelLinking>
-      <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>SOUNDIO_STATIC_LIBRARY;__WINDOWS_WASAPI__;__WINDOWS_DS__;__WINDOWS_ASIO__;_USE_DLL;WIN32;DLL_IMPORT;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
-      <DisableSpecificWarnings>4996</DisableSpecificWarnings>
+      <PreprocessorDefinitions>SOUNDIO_STATIC_LIBRARY;__WINDOWS_WASAPI__;__WINDOWS_DS__;__WINDOWS_ASIO__;_USE_DLL;WIN32;DLL_IMPORT;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
       <CompileAs>CompileAsCpp</CompileAs>
+      <DisableSpecificWarnings>4996</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
-      <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <OptimizeReferences>true</OptimizeReferences>
-      <GenerateDebugInformation>DebugFull</GenerateDebugInformation>
-      <AdditionalDependencies>avrt.lib;rtaudio.lib;opus.lib;matroska2.lib;vpxmd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>avrt.lib;opus.lib;matroska2.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -122,27 +118,13 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>SOUNDIO_STATIC_LIBRARY;__WINDOWS_WASAPI__;__WINDOWS_DS__;__WINDOWS_ASIO__;_USE_DLL;WIN32;DLL_IMPORT;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <DisableSpecificWarnings>4996</DisableSpecificWarnings>
       <CompileAs>CompileAsCpp</CompileAs>
+      <DisableSpecificWarnings>4996</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>avrt.lib;rtaudiod.lib;opus.lib;matroska2.lib;vpxmd.lib;%(AdditionalDependencies)</AdditionalDependencies>
-    </Link>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
-      <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>SOUNDIO_STATIC_LIBRARY;__WINDOWS_WASAPI__;__WINDOWS_DS__;__WINDOWS_ASIO__;_USE_DLL;WIN32;DLL_IMPORT;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <DisableSpecificWarnings>4996</DisableSpecificWarnings>
-      <CompileAs>CompileAsCpp</CompileAs>
-    </ClCompile>
-    <Link>
-      <SubSystem>Console</SubSystem>
-      <GenerateDebugInformation>DebugFull</GenerateDebugInformation>
-      <AdditionalDependencies>avrt.lib;rtaudiod.lib;opus.lib;matroska2.lib;vpxmd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>avrt.lib;opus.lib;matroska2.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -153,16 +135,34 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>SOUNDIO_STATIC_LIBRARY;__WINDOWS_WASAPI__;__WINDOWS_DS__;__WINDOWS_ASIO__;_USE_DLL;WIN32;DLL_IMPORT;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
-      <DisableSpecificWarnings>4996</DisableSpecificWarnings>
       <CompileAs>CompileAsCpp</CompileAs>
+      <DisableSpecificWarnings>4996</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>avrt.lib;rtaudio.lib;opus.lib;matroska2.lib;vpxmd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>avrt.lib;opus.lib;matroska2.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>SOUNDIO_STATIC_LIBRARY;__WINDOWS_WASAPI__;__WINDOWS_DS__;__WINDOWS_ASIO__;_USE_DLL;WIN32;DLL_IMPORT;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <DisableSpecificWarnings>4996</DisableSpecificWarnings>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>avrt.lib;opus.lib;matroska2.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -173,73 +173,9 @@
     <ClCompile Include="..\oglplayer\libsoundio\src\soundio.c" />
     <ClCompile Include="..\oglplayer\libsoundio\src\util.c" />
     <ClCompile Include="..\oglplayer\libsoundio\src\wasapi.c" />
-    <ClCompile Include="main8.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="main9.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="media_buffer.cpp" />
-    <ClCompile Include="opus_decoder.cpp" />
-    <ClCompile Include="soundio_outstream.cpp" />
-    <ClCompile Include="soundio_service.cpp" />
-    <ClCompile Include="vp9_glTex_decoder.cpp" />
-    <ClCompile Include="main5.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="main3.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="main0.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="main1.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="main2.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="main.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="vp9_ram_vpximg_decoder.cpp" />
-    <ClCompile Include="mkv_sink.cpp" />
-    <ClCompile Include="mkv_source.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="audio_info.h" />
-    <ClInclude Include="audio_serice.h" />
-    <ClInclude Include="media_buffer.h" />
-    <ClInclude Include="media_sink.h" />
-    <ClInclude Include="media_source.h" />
-    <ClInclude Include="media_transform.h" />
-    <ClInclude Include="mkv_sink.h" />
-    <ClInclude Include="mkv_source.h" />
-    <ClInclude Include="soundio_outstream.h" />
-    <ClInclude Include="soundio_service.h" />
-    <ClInclude Include="soundio_service.ipp" />
-    <ClInclude Include="video_info.h" />
+    <ClCompile Include="..\webm-vpx-player\media_buffer.cpp" />
+    <ClCompile Include="..\webm-vpx-player\mkv_source.cpp" />
+    <ClCompile Include="main.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

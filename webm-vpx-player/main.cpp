@@ -3,17 +3,17 @@
 #include "media_transform.h"
 
 #include "soundio_service.h"
+#include "soundio_outstream.h"
 int main()
 {
 	//check memory leak
 	while(true){
 		soundio_service<> serv;
+		soundio_device dev = serv.GetOutputDeviceFromIndex(serv.DefaultOutput());
 		mkv_source* mkv_file =
 			mkv_source_factory::CreateFromFile("D:\\GamePlatforms\\Steam\\steamapps\\common\\Neptunia Rebirth1\\data\\MOVIE00000\\movie\\direct.webm");
 		stream_desc* streams; size_t num;
 		mkv_file->GetOutputs(streams,num);
-//		mkv_sink* mkv_ofile = 
-//			mkv_sink_factory::CreateFromFile(streams, num, "D:\\GamePlatforms\\Steam\\steamapps\\common\\Neptunia Rebirth1\\data\\MOVIE00000\\movie\\direct_remux.mkv");
 		_buffer_desc desc{};
 		//Building topology. Topology resolver not yet implemented
 		for (size_t i = 0; i < num; ++i) {
@@ -26,27 +26,32 @@ int main()
 			else if (streams[i].type == stream_desc::MTYPE_AUDIO) {
 				if (streams[i].detail.video.codec == stream_desc::audio_info::ACODEC_OPUS) {
 					streams[i].downstream = audio_decoder_factory::CreateDefaultOpusDecoder(&streams[i]);
+					stream_desc* outs;
+					size_t num;
+					streams[i].downstream->GetOutputs(outs,num);
+					outs->downstream = new soundio_outstream(outs, dev);
 				}
 			}
 		}
+		bool audio_started = false;
 		//Decode all the frames. This should be managed by topology
 		while(!mkv_file->FetchBuffer(desc)){
 //			mkv_ofile->QueueBuffer(desc);
 			_buffer_desc DecodedFrame{};
 			if (desc.stream) {
-				if (desc.stream->downstream) {
-					desc.stream->downstream->QueueBuffer(desc);
-					while (!desc.stream->downstream->FetchBuffer(DecodedFrame)) {
-						//Present or queue frame
-						if(DecodedFrame.release)
-							DecodedFrame.release(&DecodedFrame, desc.stream->downstream);
+				if (desc.stream->type == stream_desc::MTYPE_AUDIO) {
+					stream_desc* _desc; size_t size;
+					(desc.stream->downstream)->GetOutputs(_desc,size);
+					if (!audio_started) {
+						audio_started = true;
+						((soundio_outstream*)_desc->downstream)->Start();
 					}
 				}
+				if (desc.stream->mode == stream_desc::MODE_PROACTIVE)
+				while (!desc.stream->downstream->FetchBuffer(DecodedFrame)) {
+				}
 			}
-			if(desc.release)
-				desc.release(&desc,mkv_file);
 		}
-//		mkv_ofile->Flush();
 		//Tearing down topology. Topology resolver not yet implemented
 		for (size_t i = 0; i < num; ++i) {
 			if (streams[i].type == stream_desc::MTYPE_VIDEO) {
@@ -60,7 +65,7 @@ int main()
 				}
 			}
 		}
+		_sleep(0xffffffff);
 		delete mkv_file;
-//		delete mkv_ofile;
 	}
 }

@@ -1,5 +1,8 @@
 #include "soundio_outstream.h"
 
+#include <cmath>
+#include <algorithm>
+
 using std::chrono::time_point;
 using std::chrono::high_resolution_clock;
 using std::chrono::duration_cast;
@@ -44,6 +47,7 @@ soundio_outstream::soundio_outstream(stream_desc* upstream, soundio_device& dev)
 	//verify protocol here.
 	assert(upstream->type == stream_desc::MTYPE_AUDIO);
 	assert(upstream->detail.audio.codec = stream_desc::audio_info::ACODEC_PCM);
+	assert(desc_in->mode = stream_desc::MODE_REACTIVE);
 	handle = soundio_outstream_create(dev);
 	handle->userdata = this;
 	handle->error_callback = error_callback;
@@ -61,11 +65,28 @@ soundio_outstream::soundio_outstream(stream_desc* upstream, soundio_device& dev)
 	//assume same sample format for now
 	sameple_size = upstream->detail.audio.format.bitdepth>>3;
 	write_sample_with_fmt_convert = write_same_fmt;
+	frame_num = (handle->software_latency*handle->sample_rate);
+	if (upstream->detail.audio.planar) {
+		for (int i = 0; i < upstream->detail.audio.layout.channel_count; ++i) {
+			buffer[i]=(uint8_t*)malloc((frame_num)* sizeof(float));
+		}
+	}
+	else {
+		buffer[0] = (uint8_t*)malloc((frame_num) * sizeof(float) * upstream->detail.audio.layout.channel_count);
+	}
 }
 
 soundio_outstream::~soundio_outstream()
 {
 	soundio_outstream_destroy(handle);
+	if (desc_in->detail.audio.planar) {
+		for (int i = 0; i < desc_in->detail.audio.layout.channel_count; ++i) {
+			free(buffer[i]);
+		}
+	}
+	else {
+		free(buffer[0]);
+	}
 }
 
 soundio_outstream::operator SoundIoOutStream* ()
@@ -100,10 +121,62 @@ int soundio_outstream::Reset()
 
 int soundio_outstream::QueueBuffer(_buffer_desc& buffer)
 {
-	if (!queue.try_emplace(buffer)) {
+	/*if (!queue.try_emplace(buffer)) {
 		return E_AGAIN;
 	}
-	return S_OK;
+	return S_OK;*/
+	return E_INVALID_OPERATION;
+}
+
+int cmp(void const* ptr1, void const* ptr2)
+{
+	return ptr1<ptr2;
+}
+
+bool soundio_outstream::need_convert(SoundIoChannelArea* areas, SampleFormat in_fmt, SampleFormat out_fmt, const channel_layout& in_channels, const channel_layout& out_channels, bool in_planar, int sample_num)
+{
+	return false;
+	//simple check of channel types
+	if(in_channels.channel_count!=out_channels.channel_count)
+		return false;
+	if(!memcmp(&in_fmt,&out_fmt, sizeof(SampleFormat)))
+		return false;
+	if (in_planar) {
+		//CHECK IF OUTPUT IS VALID PLANAR
+		//MAY ALSO CHECK THE LAYOUT ORDER
+		//PERHAPS REORDER THE AREAS
+		if (areas->step == (in_fmt.bitdepth / 8)) {
+			bool valid = false;
+			uint8_t* ids[max_channels];
+			//sort the output in order and see if overllaped
+			for (int i = 0; i < out_channels.channel_count; ++i) {
+				ids[i] = (uint8_t*)areas[i].ptr;
+			}
+			qsort(ids, out_channels.channel_count,sizeof(uint8_t*), cmp);
+			if (ids[1] - ids[0] < sample_num * soundio_get_bytes_per_sample(soundio_device::translate_to_soundio_format(in_fmt))) {
+				return false;
+			}
+			//check channel order here
+			return false;
+			return true;
+		}
+	}
+	else {
+		//my format do not have defined size yet
+		int stride = areas[0].step;
+		uint8_t* ptr[max_channels]{};
+		for (int i = 0; i < out_channels.channel_count; ++i) {
+			if(areas[i].step != stride)		return false;
+			ptr[i]=(uint8_t*)areas[i].ptr;
+		}
+		qsort(ptr, out_channels.channel_count, sizeof(uint8_t*), cmp);
+		for (int i = 0; i < out_channels.channel_count - 1; ++i) {
+			if (ptr[i+1] - ptr[i] != (in_fmt.bitdepth / 8))	return false;
+		}
+		//check channel order here
+		return false;
+		return true;
+	}
 }
 
 //user implement this
@@ -112,59 +185,44 @@ void soundio_outstream::write_frames(SoundIoChannelArea* areas, const channel_la
 	uint64_t zeros = 0;
 	int src_stride = 0;
 	int frames_left = frame_count;
+	_buffer_desc fetching{};
+	if (desc_in->detail.audio.planar) {
+		for (int i = 0; i < channels.channel_count; ++i) {
+			fetching.detail.aframe.channels[i] = buffer[i];
+			src[i] = (uint8_t*)buffer[i];
+		}
+		src_stride = sameple_size;
+	}
+	else {
+		fetching.detail.aframe.channels[0] = buffer[0];
+		for (int i = 0; i < channels.channel_count; ++i) {
+			src[i] = (uint8_t*)(buffer[0] + i * sameple_size);
+		}
+		src_stride = sameple_size * channels.channel_count;
+	}
 	while (frames_left) {
 		int this_round;
 		bool need_pop = false;
-		if (!queue.front()) {
-			for (int i = 0; i < channels.channel_count; ++i) {
-				src[i] = (uint8_t*)&zeros;
-			}
-			this_round = frames_left;
-			src_stride = 0;
-		}
-		else {
-			_buffer_desc& buf = *queue.front();
-			if (desc_in->detail.audio.planar) {
-				src_stride = sameple_size;
-				uint8_t** _src = (uint8_t**)buf.detail.audio_frame.channels;
-				for (int i = 0; i < channels.channel_count; ++i) {
-					src[i] = _src[i] + sameple_size * frames_into_front;
-				}
-				if (frames_left >= buf.detail.audio_frame.nb_samples - frames_into_front) {
-					need_pop = true;
-					this_round = buf.detail.audio_frame.nb_samples - frames_into_front;
-				}
-				else {
-					this_round = frames_left;
-				}
-			}
-			else {
-				src_stride = sameple_size * channels.channel_count;
-				for (int i = 0; i < channels.channel_count; ++i) {
-					src[i] = ((uint8_t*)buf.detail.audio_frame.channels[0]) + sameple_size * i + sameple_size * frames_into_front * channels.channel_count;
-				}
-			}
-		}
+		fetching.detail.aframe.nb_samples = frames_left;
+		fetching.detail.aframe.sample_rate = desc_in->detail.audio.Hz;
+		desc_in->upstream->FetchBuffer(fetching);
+		this_round = fetching.detail.aframe.nb_samples;
 		for (int i = 0; i < channels.channel_count; ++i) {
-			for (int i = 0; i < this_round; ++i) {
+			for (int j = 0; j < this_round; ++j) {
 				write_sample_with_fmt_convert(areas[i].ptr, src[i], sameple_size);
 				areas[i].ptr += areas[i].step;
 				src[i] += src_stride;
 			}
 		}
-		if (need_pop) {
-			frames_into_front = 0;
-			queue.pop();
-		}
-		else {
-			frames_into_front += this_round;
-		}
+		frames_left -= this_round;
 	}
 
+//	printf("%f\n",GetLatency());
 }
 
 void soundio_outstream::write_callback(SoundIoOutStream* stream, int frame_count_min, int frame_count_max)
 {
+	auto release_start = high_resolution_clock::now();
 	if (!frame_count_max) return;
 	double float_sample_rate = stream->sample_rate;
 	double seconds_per_frame = 1.0 / float_sample_rate;
@@ -173,76 +231,15 @@ void soundio_outstream::write_callback(SoundIoOutStream* stream, int frame_count
 	int err;
 	soundio_outstream& ost = *(soundio_outstream*)stream->userdata;
 	int frame_count = frame_count_min ? frame_count_min : frame_count_max;
-	//	frame_count = 481;
+//		frame_count = (frame_count+1>frame_count_max)?frame_count:frame_count+1;
+	frame_count = frame_count_max;
+	channel_layout mlayout;
+	soundio_device::translate_from_soundio_layout(mlayout, stream->layout);
 	if ((err = soundio_outstream_begin_write(stream, &areas, &frame_count))) {
 		fprintf(stderr, "unrecoverable stream error: %s\n", soundio_strerror(err));
 		exit(1);
 	}
-	channel_layout mlayout;
-	soundio_device::translate_from_soundio_layout(mlayout, stream->layout);
 	ost.write_frames(areas, mlayout, frame_count);
-	//render frames here.
-	/*
-	while (frame_left > 0 && !ost.state.s_state.in_queque.empty()) {
-	AVFrame* avframe = *(ost.state.s_state.in_queque.front());
-	pts = avframe->pts;
-	nb_samples = avframe->nb_samples;
-	rendered = true;
-	reset = false;
-	//Update current pts in state and notify
-	//the presentation controll thread. Syncing video
-	//to audio is simpler on the audio side with
-	//no need for resampling on time change, etc.
-	//Also get smoother audio when playing since
-	//audio is a strict realtime constraint
-	//while video is not. Dropping audio currently
-	//fills the buffer with 0, but may employ a
-	//swr_context to drop the time, and compensate.
-	//Note: allocate the buffer before doing anything
-	//		else, and use the direct swr function.
-	//      Not using the direct conversion to write
-	//      to the buffer here is becase while on
-	//      most backends the buffer is packed,
-	//      jack goes with planar, and alsa has both.
-	//      Allowing to specify a stride on swr_convert
-	//      may work around this, but will mean work
-	//      on the ffmpeg side and a separate code path
-	//      for preparing such data.
-	int64_t cur_write = min(avframe->nb_samples - ost.state.s_state.samples_read, frame_left);
-	for (int64_t frame = 0; frame < cur_write; frame += 1) {
-	for (int channel = 0; channel < layout->channel_count; channel += 1) {
-	if (avframe->data[channel]) {
-	memcpy(areas[channel].ptr, avframe->data[channel] + size_t(4) * (frame + ost.state.s_state.samples_read), 4);
-	areas[channel].ptr += areas[channel].step;
-	}
-	}
-	}
-	if (avframe->nb_samples - ost.state.s_state.samples_read == cur_write) {
-	cur_samples = (ost.state.s_state.samples_read);
-	ost.state.s_state.samples_read = 0;
-	ost.state.s_state.recycle_queque.push(avframe);
-	ost.state.s_state.in_queque.pop();
-	++num_recieved;
-	reset = true;
-	ost.state.s_state.in_queue_cond.notify_one();
-	}
-	else {
-	cur_samples = (ost.state.s_state.samples_read + cur_write);
-	ost.state.s_state.samples_read += frame_left;
-	}
-	frame_left -= cur_write;
-	}
-	if (frame_left) {
-	if (ost.state.s_state.audio_ready) {
-	fprintf(stderr, "No audio frame recieved!\n");
-	}
-	for (int frame = 0; frame < frame_left; frame += 1) {
-	for (int channel = 0; channel < layout->channel_count; channel += 1) {
-	memset(areas[channel].ptr, 0, 4);
-	areas[channel].ptr += areas[channel].step;
-	}
-	}
-	}*/
 	if ((err = soundio_outstream_end_write(stream))) {
 		if (err == SoundIoErrorUnderflow)
 			return;
@@ -252,20 +249,12 @@ void soundio_outstream::write_callback(SoundIoOutStream* stream, int frame_count
 	double latency;
 	soundio_outstream_get_latency(ost.handle, &latency);
 	ost.deplete_time = high_resolution_clock::now() + duration_cast<high_resolution_clock::duration>(duration<double>(latency));
-	//update latency here
-	/*
-	if (rendered) {
-	ost.state.s_state.prev_nb_samples = nb_samples;
-	ost.state.s_state.prev_pts = pts;
-	ost.state.s_state.cur_pts = pts + ((cur_samples * ost.state.s_state.time_base.den) / (float_sample_rate * ost.state.s_state.time_base.num)) - ((latency * ost.state.s_state.time_base.den) / ost.state.s_state.time_base.num);
-	ost.state.s_state.time_since_epoch = timer::since_epoch() - latency * 1000000000;
-	}
-	soundio_outstream_pause(stream, want_pasue);
-	ost.state.wait_audio_cond.notify_one();*/
+	ost.cur_frame+=frame_count;
 }
 
 void soundio_outstream::underflow_callback(SoundIoOutStream*)
 {
+	//notify to buffer more
 	fprintf(stderr, "Soundio Outstream underflow.");
 }
 
