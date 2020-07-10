@@ -7,6 +7,9 @@
 #include <cassert>
 #include <rigtorp/SPSCQueue.h>
 
+#include <thread>
+#include <condition_variable>
+
 //implemets the default vp9 decoder with internal
 //framebuffers and frame by frame decoding.
 //(Also with postprocessing by default, maybe
@@ -16,14 +19,17 @@ class libvpx_vp9_ram_decoder: public video_decoder {
 	vpx_codec_ctx ctx;
 	//not needed for vp9
 	vpx_codec_iter_t iter;
-	vpx_image_t* probe_frame = nullptr;
 	const vpx_codec_dec_cfg cfg;
 	const int mflags;
 	const int init_err;
-	std::once_flag once_flag;
-	bool default_calling_probe = false;
 	stream_desc out_stream;
-	rigtorp::SPSCQueue<_buffer_desc> in_queue{10};
+	rigtorp::SPSCQueue<_buffer_desc> in_queue{10000};
+	vpx_image_t* last_image = nullptr;
+	uint64_t cur_timestamp = 0;
+
+	std::thread decode_thread;
+	std::condition_variable decode_cond;
+	std::mutex decode_mtx;
 public:
 	libvpx_vp9_ram_decoder(stream_desc* upstream, uint32_t threads = 1, int flags = VPX_CODEC_USE_POSTPROC):
 		video_decoder(decoder_type::VD_VP9_RAM_VPX_IMG_DECODER),iface(vpx_codec_vp9_dx()), 
@@ -52,30 +58,42 @@ public:
 		//assume 64 bit
 		//in_queue.emplace(buffer);
 		assert(sizeof(void*)==sizeof(buffer.start_timestamp));
-		int err = vpx_codec_decode(&ctx, buffer.detail.pkt.buffer->buffer,buffer.detail.pkt.size, (void*)buffer.start_timestamp, 0);
-		buffer.release(&buffer);
+//		int err = vpx_codec_decode(&ctx, buffer.detail.pkt.buffer->buffer,buffer.detail.pkt.size, (void*)buffer.start_timestamp, 0);
+//		buffer.release(&buffer);
 //		return err;
+		in_queue.emplace(buffer);
 		return S_OK;
 	}
 	//for decoders, this means getting a frame from decoder
 	virtual int FetchBuffer(_buffer_desc& buffer) override final
 	{
-		default_calling_probe = true;
-		std::call_once(once_flag, &libvpx_vp9_ram_decoder::Probe, this);
-		//buffer.type checks here
-		[[unlikely]] if (probe_frame) {
-			translate_from_vpx_img(buffer,probe_frame);
-			probe_frame = nullptr;
-			return S_OK;
-		}
-		vpx_image_t* img = vpx_codec_get_frame(&ctx, &iter);
-		if(!img)
+		//Get next video frame.
+		int err = S_OK;
+		if (!in_queue.front()) {
+			for (int i = 0; i < out_stream.detail.video.planes; ++i) {
+				buffer.detail.image.planes[i] = nullptr;
+				buffer.detail.image.line_size[i] = 0;
+			}
 			return E_AGAIN;
+		}
 		else {
-			translate_from_vpx_img(buffer, img);
-			buffer.stream = desc_out;
-			//assume 64 bit
-			buffer.start_timestamp = (uint64_t)img->user_priv;
+			last_image = vpx_codec_get_frame(&ctx, &iter);
+			if (!last_image) {
+				_buffer_desc& cur_input = *in_queue.front();
+				assert(cur_input.detail.pkt.size);
+				err = vpx_codec_decode(&ctx, cur_input.detail.pkt.buffer->buffer, cur_input.detail.pkt.size, (void*)cur_input.start_timestamp, 0);
+				iter = nullptr;
+				cur_input.release(&buffer);
+				in_queue.pop();
+				last_image = vpx_codec_get_frame(&ctx, &iter);
+				assert(last_image);
+			}
+			translate_from_vpx_img(buffer, last_image);
+			desc_out->detail.video.space = translate_from_vpx_cs(last_image->cs);
+			video_sample_format fmt;
+			translate_from_vpx_fmt(fmt, last_image->fmt);
+			desc_out->detail.video.fmt = fmt;
+			desc_out->detail.video.range = translate_from_vpx_cr(last_image->range);
 			return S_OK;
 		}
 	}
@@ -103,35 +121,19 @@ public:
 	{
 		return E_UNIMPLEMENTED;
 	}
-	//Probe the format
 	virtual int Probe() override final
 	{
-		assert(desc_out);
-		if (probe_frame)
-			return E_INVALID_OPERATION;
-		vpx_image_t* img = vpx_codec_get_frame(&ctx, &iter);
-		if (!img)
-			return S_OK;
-		auto do_probe = [this, img] () {
-			probe_frame = img;
-			color_space spc = translate_from_vpx_cs(img->cs);
-			desc_in->detail.video.space;
-			desc_out->detail.video.space;
-			video_sample_format fmt;
-			translate_from_vpx_fmt(fmt,img->fmt);
-			desc_in->detail.video.fmt = fmt;
-			desc_out->detail.video.fmt = fmt;
-			color_range range = translate_from_vpx_cr(img->range);
-			desc_in->detail.video.range = range;
-			desc_out->detail.video.range = range;
-		};
-		if(!default_calling_probe)
-			std::call_once(once_flag, do_probe);
-		else
-			do_probe();
-		return S_OK;
+		return E_UNIMPLEMENTED;
 	}
 private:
+	void thread_proc()
+	{
+		
+	}
+	static void thread_proc_proxy(libvpx_vp9_ram_decoder* This)
+	{
+		This->thread_proc();
+	}
 	static vpx_color_space translate_to_vpx_cs(color_space my_space) noexcept
 	{
 		switch (my_space) {

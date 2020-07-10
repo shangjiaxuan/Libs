@@ -43,6 +43,7 @@ struct stream_desc {
 		color_space space;
 		color_range range;
 		video_sample_format fmt;
+		int planes;
 		unsigned width, height;
 	};
 	struct audio_info {

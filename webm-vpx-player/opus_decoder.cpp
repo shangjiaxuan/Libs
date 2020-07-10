@@ -16,7 +16,7 @@ class opus_decoder: public audio_decoder {
 	stream_desc out_stream;
 	uint64_t cur_frame = 0;
 	//larger may be better, or perhaps a dynamically allocated queue
-	rigtorp::SPSCQueue<_buffer_desc> in_queue{10};
+	rigtorp::SPSCQueue<_buffer_desc> in_queue{3};
 	rigtorp::SPSCQueue<_buffer_desc> out_queue{10};
 public:
 	opus_decoder(stream_desc* upstream):

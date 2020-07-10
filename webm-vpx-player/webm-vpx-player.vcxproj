@@ -173,6 +173,13 @@
     <ClCompile Include="..\oglplayer\libsoundio\src\soundio.c" />
     <ClCompile Include="..\oglplayer\libsoundio\src\util.c" />
     <ClCompile Include="..\oglplayer\libsoundio\src\wasapi.c" />
+    <ClCompile Include="Graphics.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="main.cpp" />
     <ClCompile Include="main8.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
@@ -217,19 +224,20 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="main.cpp">
+    <ClCompile Include="main10.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="vp9_ram_vpximg_decoder.cpp" />
+    <ClCompile Include="vp9_ram_decoder.cpp" />
     <ClCompile Include="mkv_sink.cpp" />
     <ClCompile Include="mkv_source.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="audio_info.h" />
     <ClInclude Include="audio_serice.h" />
+    <ClInclude Include="Graphics.h" />
     <ClInclude Include="media_buffer.h" />
     <ClInclude Include="media_sink.h" />
     <ClInclude Include="media_source.h" />
