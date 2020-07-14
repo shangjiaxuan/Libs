@@ -117,11 +117,6 @@ class Graphics {
 		};
 		std::atomic_uint64_t packed;
 	} display_state;
-	
-
-
-
-
 	std::condition_variable start_cond;
 	std::mutex start_mtx;
 	std::thread thread_handle;
@@ -170,7 +165,6 @@ public:
 	void Start()
 	{
 		start_cond.notify_one();
-
 	}
 private:
 	void thread_proc()

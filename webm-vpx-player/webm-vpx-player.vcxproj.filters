@@ -72,6 +72,9 @@
       <Filter>playground</Filter>
     </ClCompile>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="gl_frame_uploader.cpp">
+      <Filter>media_node\media_transform\video</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="mkv_sink.h">

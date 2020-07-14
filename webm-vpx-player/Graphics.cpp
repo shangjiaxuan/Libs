@@ -28,6 +28,8 @@ class Graphics {
 	GLuint vert;
 	GLuint frag;
 	GLuint program;
+
+	int width, height;
 	
 public:
 	Graphics(int w, int h)
@@ -62,8 +64,8 @@ public:
 		puts((const char*)glGetString(GL_EXTENSIONS));
 		glCreateTextures(GL_TEXTURE_2D, 3, texture_yuv);
 		glTextureStorage2D(texture_yuv[0], 1, GL_R8, w, h);
-		glTextureStorage2D(texture_yuv[1], 1, GL_R8, w / 2, h / 2);
-		glTextureStorage2D(texture_yuv[2], 1, GL_R8, w / 2, h / 2);
+		glTextureStorage2D(texture_yuv[1], 1, GL_R8, (w + 1) / 2, (h + 1) / 2);
+		glTextureStorage2D(texture_yuv[2], 1, GL_R8, (w + 1) / 2, (h + 1) / 2);
 		for (int i = 0; i < 3; ++i) {
 			float border_color[] = {0.0, 0.0, 0.0, 1.0};
 			glTextureParameterfv(texture_yuv[i], GL_TEXTURE_BORDER_COLOR, border_color);

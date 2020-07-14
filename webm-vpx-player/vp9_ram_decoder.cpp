@@ -18,18 +18,24 @@ class libvpx_vp9_ram_decoder: public video_decoder {
 	const vpx_codec_iface_t* const iface;
 	vpx_codec_ctx ctx;
 	//not needed for vp9
+	/*volatile*//*fetching done in same thread*/
+	/*libvpx implementation: vp9 ignores this,
+			vp8 stores pointer to last frame*/
 	vpx_codec_iter_t iter;
 	const vpx_codec_dec_cfg cfg;
 	const int mflags;
 	const int init_err;
 	stream_desc out_stream;
 	rigtorp::SPSCQueue<_buffer_desc> in_queue{10000};
-	vpx_image_t* last_image = nullptr;
 	uint64_t cur_timestamp = 0;
 
 	std::thread decode_thread;
 	std::condition_variable decode_cond;
 	std::mutex decode_mtx;
+	std::atomic_bool thread_running = false;
+	std::atomic_bool need_decode = false;
+	std::atomic_size_t frames_decoded = 0;
+	std::atomic_size_t frames_fetched = 0;
 public:
 	libvpx_vp9_ram_decoder(stream_desc* upstream, uint32_t threads = 1, int flags = VPX_CODEC_USE_POSTPROC):
 		video_decoder(decoder_type::VD_VP9_RAM_VPX_IMG_DECODER),iface(vpx_codec_vp9_dx()), 
@@ -46,6 +52,11 @@ public:
 		upstream->downstream = this;
 		desc_in = upstream;
 		desc_out = &out_stream;
+		decode_thread = std::move(std::thread(thread_proc_proxy,this));
+		while (!thread_running.load(std::memory_order_relaxed)) {
+			std::unique_lock<std::mutex> lck(decode_mtx);
+			decode_cond.wait(lck);
+		}
 	}
 	virtual ~libvpx_vp9_ram_decoder() override final
 	{
@@ -61,13 +72,46 @@ public:
 //		int err = vpx_codec_decode(&ctx, buffer.detail.pkt.buffer->buffer,buffer.detail.pkt.size, (void*)buffer.start_timestamp, 0);
 //		buffer.release(&buffer);
 //		return err;
+		//no need for synchronization here
+	//	std::lock_guard<std::mutex> lck(decode_mtx);
 		in_queue.emplace(buffer);
+		need_decode.store(true,std::memory_order_relaxed);
 		return S_OK;
 	}
 	//for decoders, this means getting a frame from decoder
 	virtual int FetchBuffer(_buffer_desc& buffer) override final
 	{
-		//Get next video frame.
+		vpx_image_t* image = nullptr;
+		while (true) {
+			decode_mtx.lock();
+			image = vpx_codec_get_frame(&ctx, &iter);
+			if (!image) {
+				decode_mtx.unlock();
+				need_decode.store(true, std::memory_order_relaxed);
+				decode_cond.notify_one();
+			}
+			else {
+				frames_decoded.fetch_add(1,std::memory_order_relaxed);
+				//lock released before consuming will result in bug!
+				translate_from_vpx_img(buffer, image);
+				buffer.start_timestamp = (uint64_t)image->user_priv;
+				buffer.end_timestamp = (uint64_t)image->user_priv;
+				desc_out->detail.video.space = translate_from_vpx_cs(image->cs);
+				video_sample_format fmt;
+				translate_from_vpx_fmt(fmt, image->fmt);
+				desc_out->detail.video.fmt = fmt;
+				desc_out->detail.video.range = translate_from_vpx_cr(image->range);
+				//Downstream has to consume the buffer right away before
+				//returning.
+				assert(desc_out);
+				assert(desc_out->downstream);
+				desc_out->downstream->QueueBuffer(buffer);
+				decode_mtx.unlock();
+				return S_OK;
+			}
+		}
+
+/*		//Get next video frame.
 		int err = S_OK;
 		if (!in_queue.front()) {
 			for (int i = 0; i < out_stream.detail.video.planes; ++i) {
@@ -95,7 +139,7 @@ public:
 			desc_out->detail.video.fmt = fmt;
 			desc_out->detail.video.range = translate_from_vpx_cr(last_image->range);
 			return S_OK;
-		}
+		}*/
 	}
 	//This is for cases where the frame is owned or refed
 	//by the user and needs to be freed
@@ -128,7 +172,34 @@ public:
 private:
 	void thread_proc()
 	{
-		
+		{
+			std::lock_guard<std::mutex> lck(decode_mtx);
+			thread_running.store(true, std::memory_order_relaxed);
+		}
+		int err = VPX_CODEC_OK;
+		while(!err){
+			std::unique_lock<std::mutex> lck(decode_mtx);
+			decode_cond.wait(lck);
+			if (!thread_running.load(std::memory_order_relaxed)) {
+				break;
+			}
+			if (need_decode.load(std::memory_order_relaxed)) {
+				while (!in_queue.front()) {
+					_buffer_desc fetch_packet;
+					desc_in->upstream->FetchBuffer(fetch_packet);
+				}
+				while (in_queue.front() && !err) {
+					_buffer_desc& cur_in = *in_queue.front();
+					assert(sizeof(void*) == sizeof(uint64_t));
+					err = vpx_codec_decode(&ctx, cur_in.detail.pkt.buffer->buffer, cur_in.detail.pkt.size, (void*)cur_in.start_timestamp, 0);
+					frames_decoded.fetch_add(1,std::memory_order_relaxed);
+					cur_in.release(&cur_in);
+					in_queue.pop();
+				}
+				need_decode.store(false, std::memory_order_relaxed);
+			}
+		}
+		//Tear down the thread here.
 	}
 	static void thread_proc_proxy(libvpx_vp9_ram_decoder* This)
 	{
