@@ -95,13 +95,13 @@ void initThreads(RenderThread& rend, DecoderThread& dec, char* uri) {
 }
 
 void WindowEvent(const SDL_WindowEvent& event,RenderThread& rend) {
+	//use a union to make things atomic
+	rect_size temp;
 	switch (event.event) {
 		case SDL_WINDOWEVENT_CLOSE:
 			running.store(false, std::memory_order_relaxed);
 			break;
 		case SDL_WINDOWEVENT_RESIZED:
-			//use a union to make things atomic
-			rect_size temp;
 			temp.data[0] = event.data1;
 			temp.data[1] = event.data2;
 			rend.cur_size.dimension.store(temp.dimension.load(std::memory_order_relaxed),std::memory_order_relaxed);

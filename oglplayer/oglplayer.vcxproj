@@ -70,14 +70,14 @@
     <LinkIncremental>true</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>C:\Users\shang\OneDrive\Documents\Source\Libs\depend\include;D:\Developer\ffmpeg-4.2.2-win64-dev-lgpl\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\shang\OneDrive\Documents\Source\Libs\depend\lib;D:\Developer\ffmpeg-4.2.2-win64-dev-lgpl\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)depend\include;$(SolutionDir)ffmpeg-4.2.2-win64-dev-lgpl\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)depend\lib;$(SolutionDir)ffmpeg-4.2.2-win64-dev-lgpl\lib;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)Build\$(PlatformTarget)-$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)Intermediates\$(ProjectName)\$(PlatformTarget)-$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>C:\Users\shang\OneDrive\Documents\Source\Libs\depend\include;D:\Developer\ffmpeg-4.2.2-win64-dev-lgpl\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\shang\OneDrive\Documents\Source\Libs\depend\lib;D:\Developer\ffmpeg-4.2.2-win64-dev-lgpl\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)depend\include;$(SolutionDir)ffmpeg-4.2.2-win64-dev-lgpl\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)depend\lib;$(SolutionDir)ffmpeg-4.2.2-win64-dev-lgpl\lib;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)Build\$(PlatformTarget)-$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)Intermediates\$(ProjectName)\$(PlatformTarget)-$(Configuration)\</IntDir>
   </PropertyGroup>
